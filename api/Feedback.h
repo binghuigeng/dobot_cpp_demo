@@ -11,7 +11,7 @@ namespace Dobot
     {
     public:
         CFeedback();
-        virtual ~CFeedback();
+        virtual ~CFeedback() override;
 
         const CFeedbackData& GetFeedbackData() const;
         inline bool IsDataHasRead() const{

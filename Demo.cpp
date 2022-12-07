@@ -64,11 +64,11 @@ void Demo::run()
         //点到点运动，目标点位为关节点位
         JointMovJ();
         sleep(5);
-        //点到点运动，目标点位为笛卡尔点位
-        MovJ();
+        //点到点运动时并行设置数字输出端口状态，目标点位为笛卡尔点位
+        MovJIO();
         sleep(3);
-        //直线运动，目标点位为笛卡尔点位
-        MovL();
+        //在直线运动时并行设置数字输出端口状态，目标点位为笛卡尔点位
+        MovLIO();
         sleep(3);
 
         //点动
@@ -219,6 +219,91 @@ void Demo::MovL()
                                m_DobotMove.GetPort(),pt.ToString().c_str()));
     std::thread thd([=]{
         std::string ret = m_DobotMove.MovL(pt);
+        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
+                                   m_DobotMove.GetPort(), ret.c_str()));
+    });
+    thd.detach();
+}
+
+void Demo::MovJIO()
+{
+    CDescartesPointIO pt;
+    pt.x = -287.0000;
+    pt.y = 652.0000;
+    pt.z = 890.0000;
+    pt.rx = -88.0000;
+    pt.ry = -40.0000;
+    pt.rz = -46.0000;
+    pt.mode = 0;
+    pt.distance = 50;
+    pt.index = 1;
+    pt.status = 1;
+    PrintLog(QString::asprintf("send to %s:%hu: MovJIO(%s)", m_DobotMove.GetIp().c_str(),
+                               m_DobotMove.GetPort(),pt.ToString().c_str()));
+    std::thread thd([=]{
+        std::string ret = m_DobotMove.MovJIO(pt);
+        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
+                                   m_DobotMove.GetPort(), ret.c_str()));
+    });
+    thd.detach();
+}
+
+void Demo::MovLIO()
+{
+    CDescartesPointIO pt;
+    pt.x = -287.0000;
+    pt.y = 652.0000;
+    pt.z = 890.0000;
+    pt.rx = -88.0000;
+    pt.ry = -40.0000;
+    pt.rz = -53.0000;
+    pt.mode = 0;
+    pt.distance = 50;
+    pt.index = 1;
+    pt.status = 0;
+    PrintLog(QString::asprintf("send to %s:%hu: MovLIO(%s)", m_DobotMove.GetIp().c_str(),
+                               m_DobotMove.GetPort(),pt.ToString().c_str()));
+    std::thread thd([=]{
+        std::string ret = m_DobotMove.MovLIO(pt);
+        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
+                                   m_DobotMove.GetPort(), ret.c_str()));
+    });
+    thd.detach();
+}
+
+void Demo::ServoJ()
+{
+    CJointPoint pt;
+    pt.j1 = 120.0000;
+    pt.j2 = 0.0000;
+    pt.j3 = 0.0000;
+    pt.j4 = 0.0000;
+    pt.j5 = 0.0000;
+    pt.j6 = 0.0000;
+
+    PrintLog(QString::asprintf("send to %s:%hu: ServoJ(%s)", m_DobotMove.GetIp().c_str(),
+                               m_DobotMove.GetPort(),pt.ToString().c_str()));
+    std::thread thd([=]{
+        std::string ret = m_DobotMove.ServoJ(pt);
+        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
+                                   m_DobotMove.GetPort(), ret.c_str()));
+    });
+    thd.detach();
+}
+
+void Demo::ServoP()
+{
+    CDescartesPoint pt;
+    pt.x = -287.0000;
+    pt.y = 652.0000;
+    pt.z = 890.0000;
+    pt.rx = -88.0000;
+    pt.ry = -40.0000;
+    pt.rz = -46.0000;
+    PrintLog(QString::asprintf("send to %s:%hu: ServoP(%s)", m_DobotMove.GetIp().c_str(),
+                               m_DobotMove.GetPort(),pt.ToString().c_str()));
+    std::thread thd([=]{
+        std::string ret = m_DobotMove.ServoP(pt);
         PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
                                    m_DobotMove.GetPort(), ret.c_str()));
     });

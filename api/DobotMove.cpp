@@ -48,7 +48,7 @@ namespace Dobot
         }
 
         std::ostringstream oss;
-        oss << "MovJ(" << pt.x << ',' << pt.y << ',' << pt.z << ',' << pt.rx << ',' << pt.ry << ',' << pt.rz<<')';
+        oss << "MovJ(" << pt.x << ',' << pt.y << ',' << pt.z << ',' << pt.rx << ',' << pt.ry << ',' << pt.rz << ')';
         std::string str = oss.str();
         if (!SendData(str))
         {
@@ -85,6 +85,80 @@ namespace Dobot
 
         std::ostringstream oss;
         oss << "JointMovJ(" << pt.j1 << ',' << pt.j2 << ',' << pt.j3 << ',' << pt.j4 << ',' << pt.j5 << ',' << pt.j6 << ')';
+        std::string str = oss.str();
+        if (!SendData(str))
+        {
+            return str + ":send error";
+        }
+
+        return WaitReply(5000);
+    }
+
+    std::string CDobotMove::MovJIO(const CDescartesPointIO &pt)
+    {
+        if (!IsConnected())
+        {
+            return "device does not connected!!!";
+        }
+
+        std::ostringstream oss;
+        oss << "MovJIO(" << pt.x << ',' << pt.y << ',' << pt.z << ',' << pt.rx << ',' << pt.ry << ',' << pt.rz
+            << ',' << pt.mode << ',' << pt.distance << ',' << pt.index << ',' << pt.status << ')';
+        std::string str = oss.str();
+        if (!SendData(str))
+        {
+            return str + ":send error";
+        }
+
+        return WaitReply(5000);
+    }
+
+    std::string CDobotMove::MovLIO(const CDescartesPointIO &pt)
+    {
+        if (!IsConnected())
+        {
+            return "device does not connected!!!";
+        }
+
+        std::ostringstream oss;
+        oss << "MovLIO(" << pt.x << ',' << pt.y << ',' << pt.z << ',' << pt.rx << ',' << pt.ry << ',' << pt.rz
+            << ',' << pt.mode << ',' << pt.distance << ',' << pt.index << ',' << pt.status << ')';
+        std::string str = oss.str();
+        if (!SendData(str))
+        {
+            return str + ":send error";
+        }
+
+        return WaitReply(5000);
+    }
+
+    std::string CDobotMove::ServoJ(const CJointPoint &pt)
+    {
+        if (!IsConnected())
+        {
+            return "device does not connected!!!";
+        }
+
+        std::ostringstream oss;
+        oss << "ServoJ(" << pt.j1 << ',' << pt.j2 << ',' << pt.j3 << ',' << pt.j4 << ',' << pt.j5 << ',' << pt.j6 << ')';
+        std::string str = oss.str();
+        if (!SendData(str))
+        {
+            return str + ":send error";
+        }
+
+        return WaitReply(5000);
+    }
+
+    std::string CDobotMove::ServoP(const CDescartesPoint &pt)
+    {
+        if (!IsConnected())
+        {
+            return "device does not connected!!!";
+        }
+
+        std::ostringstream oss;
+        oss << "ServoP(" << pt.x << ',' << pt.y << ',' << pt.z << ',' << pt.rx << ',' << pt.ry << ',' << pt.rz << ')';
         std::string str = oss.str();
         if (!SendData(str))
         {

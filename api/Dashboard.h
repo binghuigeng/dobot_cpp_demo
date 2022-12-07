@@ -8,7 +8,7 @@ namespace Dobot
     {
     public:
         CDashboard();
-        virtual ~CDashboard();
+        virtual ~CDashboard() override;
 
         /// <summary>
         /// 复位，用于清除错误

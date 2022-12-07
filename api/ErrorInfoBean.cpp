@@ -65,5 +65,7 @@ namespace Dobot
             }
             errorInfos[bean.id] = bean;
         }
+
+        return true;
     }
 }

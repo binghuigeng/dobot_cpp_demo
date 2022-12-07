@@ -10,7 +10,7 @@ namespace Dobot
     {
     public:
         CDobotMove();
-        virtual ~CDobotMove();
+        virtual ~CDobotMove() override;
 
         /// <summary>
         /// 关节点动运动，不固定距离运动
@@ -42,13 +42,40 @@ namespace Dobot
         /// <summary>
         /// 点到点运动，目标点位为关节点位。
         /// </summary>
-        /// <param name="pt"></param>
+        /// <param name="pt">关节点位</param>
         /// <returns>返回执行结果的描述信息</returns>
         std::string JointMovJ(const CJointPoint& pt);
+
+        /// <summary>
+        /// 点到点运动时并行设置数字输出端口状态，目标点位为笛卡尔点位。
+        /// </summary>
+        /// <param name="pt">笛卡尔点位</param>
+        /// <returns>返回执行结果的描述信息</returns>
+        std::string MovJIO(const CDescartesPointIO& pt);
+
+        /// <summary>
+        /// 在直线运动时并行设置数字输出端口状态，目标点位为笛卡尔点位
+        /// </summary>
+        /// <param name="pt">笛卡尔点位</param>
+        /// <returns>返回执行结果的描述信息</returns>
+        std::string MovLIO(const CDescartesPointIO& pt);
+
+        /// <summary>
+        /// 基于关节空间的动态跟随命令。
+        /// </summary>
+        /// <param name="pt">关节空间</param>
+        /// <returns>返回执行结果的描述信息</returns>
+        std::string ServoJ(const CJointPoint& pt);
+
+        /// <summary>
+        /// 基于笛卡尔空间的动态跟随命令。
+        /// </summary>
+        /// <param name="pt">笛卡尔空间</param>
+        /// <returns>返回执行结果的描述信息</returns>
+        std::string ServoP(const CDescartesPoint& pt);
 
     protected:
         void OnConnected() override;
         void OnDisconnected() override;
     };
 }
-

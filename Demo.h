@@ -50,6 +50,19 @@ private:
     //直线运动，目标点位为笛卡尔点位
     void MovL();
 
+    //点到点运动时并行设置数字输出端口状态，目标点位为笛卡尔点位
+    void MovJIO();
+
+    //在直线运动时并行设置数字输出端口状态，目标点位为笛卡尔点位
+    void MovLIO();
+
+    //基于关节空间的动态跟随命令
+    void ServoJ();
+
+    //基于笛卡尔空间的动态跟随命令
+    void ServoP();
+
+
     //点动
     void MoveJog();
     void StopMoveJog();
