@@ -65,27 +65,18 @@ void Demo::run()
         msleep(500);
 
         /****** 运动相关端口30003 ******/
+        //点到点运动，目标点位为笛卡尔点位
+        MovJ();
+        sleep(3);
+
         unsigned int circulate_count = 0;
-        while (circulate_count < 167) {
-            //基于关节空间的动态跟随命令
-            ServoJ();
+        while (circulate_count < 100) {
+            //基于笛卡尔空间的动态跟随命令
+            ServoP();
             msleep(30);
             circulate_count++;
         }
         sleep(1);
-
-        //点到点运动，目标点位为笛卡尔点位
-        MovJ();
-        sleep(3);
-        //直线运动，目标点位为笛卡尔点位
-        MovL();
-        sleep(3);
-
-        //点动
-        MoveJog();
-        msleep(100);
-        StopMoveJog();
-        sleep(3);
 
         //置标志位为假，准备退出循环
         bStop = false;
@@ -199,12 +190,12 @@ void Demo::JointMovJ()
 void Demo::MovJ()
 {
     CDescartesPoint pt;
-    pt.x = -287.0000;
-    pt.y = 652.0000;
-    pt.z = 890.0000;
-    pt.rx = -88.0000;
-    pt.ry = -40.0000;
-    pt.rz = -46.0000;
+    pt.x = -130.0000;
+    pt.y = 300.0000;
+    pt.z = 900.0000;
+    pt.rx = -87.0000;
+    pt.ry = 1.0000;
+    pt.rz = -53.0000;
 
     PrintLog(QString::asprintf("send to %s:%hu: MovJ(%s)", m_DobotMove.GetIp().c_str(),
                                m_DobotMove.GetPort(),pt.ToString().c_str()));
