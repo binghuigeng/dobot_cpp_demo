@@ -18,6 +18,10 @@ bool Demo::bStop = true;
 Demo::~Demo()
 {
     CDobotClient::UinitNet();
+
+    //退出线程
+    quit();
+    wait();
 }
 
 Demo *Demo::getInstance()
@@ -61,14 +65,20 @@ void Demo::run()
         msleep(500);
 
         /****** 运动相关端口30003 ******/
-        //点到点运动，目标点位为关节点位
-        JointMovJ();
-        sleep(5);
-        //点到点运动时并行设置数字输出端口状态，目标点位为笛卡尔点位
-        MovJIO();
+        unsigned int circulate_count = 0;
+        while (circulate_count < 167) {
+            //基于关节空间的动态跟随命令
+            ServoJ();
+            msleep(30);
+            circulate_count++;
+        }
+        sleep(1);
+
+        //点到点运动，目标点位为笛卡尔点位
+        MovJ();
         sleep(3);
-        //在直线运动时并行设置数字输出端口状态，目标点位为笛卡尔点位
-        MovLIO();
+        //直线运动，目标点位为笛卡尔点位
+        MovL();
         sleep(3);
 
         //点动
