@@ -64,12 +64,15 @@ void Demo::run()
         ConfirmSpeed();
         msleep(500);
 
+        //点到点运动，目标点位为关节点位
+        JointMovJ();
+
         /****** 运动相关端口30003 ******/
         unsigned int circulate_count = 0;
-        while (circulate_count < 167) {
+        while (circulate_count < 1000) {
             //基于关节空间的动态跟随命令
             ServoJ();
-            msleep(30);
+            msleep(5);
             circulate_count++;
         }
         sleep(1);
