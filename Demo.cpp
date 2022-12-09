@@ -70,10 +70,10 @@ void Demo::run()
         sleep(3);
 
         unsigned int circulate_count = 0;
-        while (circulate_count < 100) {
+        while (circulate_count < 1000) {
             //基于笛卡尔空间的动态跟随命令
             ServoP();
-            msleep(30);
+            msleep(4);
             circulate_count++;
         }
         sleep(1);
