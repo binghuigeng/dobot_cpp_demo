@@ -17,10 +17,13 @@ https://github.com/Dobot-Arm/TCP-IP-CR-MATLAB
 3、设置全局速率比
 	下发命令：SpeedFactor(50)，收到反馈：0,{},SpeedFactor(50);
 	
-4、点到点运动，目标点位为笛卡尔点位
-	下发命令：MovJ(-130,300,900,-87,1,-53)，收到反馈：0,{},MovJ(-130,300,900,-87,1,-53);
+4、点到点运动，目标点位为关节点位
+	下发命令：JointMovJ(120,0,0,0,0,0)，收到反馈：0,{},JointMovJ(120,0,0,0,0,0);
 	
-5、基于笛卡尔空间的动态跟随命令
+5、点到点运动，目标点位为笛卡尔点位
+	下发命令：MovJ(-287,652,890,-88,-40,-46)，收到反馈：0,{},MovJ(-287,652,890,-88,-40,-46);
+	
+6、基于笛卡尔空间的动态跟随命令
 	下发命令：ServoP(-287,652,890,-88,-40,-46)
 
 
@@ -57,3 +60,51 @@ https://github.com/Dobot-Arm/TCP-IP-CR-MATLAB
 1. 打开`Qt Creator`，并加载`CppDemo.pro`
 2. 编译并运行。
 3. 需要将`alarm_controller.json`和`alarm_servo.json`文件放入到执行文件所在目录。
+
+
+/****** 基于关节空间的动态跟随命令（关节数据1）******/
+const double J11 = 120.0000;
+const double J12 = 0.0000;
+const double J13 = 0.0000;
+const double J14 = 0.0000;
+const double J15 = 0.0000;
+const double J16 = 0.0000;
+
+/****** 基于关节空间的动态跟随命令（关节数据2）******/
+const double J21 = 138.9281;
+const double J22 = -57.5286;
+const double J23 = 30.0330;
+const double J24 = 4.1077;
+const double J25 = -4.4503;
+const double J26 = -16.6714;
+
+
+/****** 基于笛卡尔空间的动态跟随命令（笛卡尔数据1）******/
+const double X1 = 259.7297;
+const double Y1 = 154.3976;
+const double Z1 = 1177.0796;
+const double Rx1 = -89.8896;
+const double Ry1 = -0.0001;
+const double Rz1 = -59.4572;
+
+/****** 基于笛卡尔空间的动态跟随命令（笛卡尔数据2）******/
+const double X1 = -287.0000;
+const double Y1 = 652.0000;
+const double Z1 = 890.0000;
+const double Rx1 = -88.0000;
+const double Ry1 = -40.0000;
+const double Rz1 = -46.0000;
+
+
+/********************************************************************
+*                ServoP()分支第一次提交到远程仓库
+* 先用MovJ()命令移到下面位置，再用ServoP()命令移到笛卡尔数据2的位置
+* 备注：此次提交为第二次提交到远程仓库
+********************************************************************/
+/****** 点到点运动，目标点位为笛卡尔点位 ******/
+const double X1 = -130.0000;
+const double Y1 = 300.0000;
+const double Z1 = 900.0000;
+const double Rx1 = -87.0000;
+const double Ry1 = 1.0000;
+const double Rz1 = 53.0000;
