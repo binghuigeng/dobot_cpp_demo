@@ -19,7 +19,8 @@ SOURCES += \
         Handle.cpp \
         SerialPort.cpp \
         main.cpp \
-        util.cpp
+        util.cpp \
+    protocol.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -29,4 +30,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     Handle.h \
     SerialPort.h \
-    util.h
+    util.h \
+    protocol.h

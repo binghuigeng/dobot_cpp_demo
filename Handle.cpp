@@ -39,7 +39,7 @@ void Handle::deleteInstance()
 void Handle::initialize()
 {
     timer1s.setInterval(1000);
-    timer1s.start();
+//    timer1s.start();
 }
 
 void Handle::on_receive(QByteArray tmpdata)
