@@ -30,7 +30,7 @@ void SerialPort::init_port()
 {
     qDebug() << "init_port_id is:" << QThread::currentThreadId();
 #ifdef WIN32
-    port->setPortName("COM3");                   //串口名 linux下写作/dev/ttyS1
+    port->setPortName("COM7");                   //串口名 linux下写作/dev/ttyS1
 #else
     port->setPortName("/dev/ttyS1");                   //串口名 windows下写作COM1
 #endif
@@ -64,7 +64,7 @@ void SerialPort::handle_data()
 #endif
 
 #if 1
-    qDebug() << "recv: ";
+//    qDebug() << "recv: ";
     static int icount = 0;
     uchar res;
     static bool frame_head = false, frame_receive_start_flag = false;
@@ -107,18 +107,18 @@ void SerialPort::handle_data()
                         // qDebug("address: 0x%02X", data->address);
                         // qDebug("length: 0x%04X", data->length);
                         // qDebug("cmd: 0x%01X", data->cmd);
-                        // qDebug("Fx: %d", data->channel);
-                        // qDebug("Fy: %d", data->channel2);
-                        // qDebug("Fz: %d", data->channel3);
-                        // qDebug("Mx: %d", data->channel4);
-                        // qDebug("My: %d", data->channel5);
-                        // qDebug("Mz: %d", data->channel6);
+//                         qDebug("Fx: %d", data->channel);
+//                         qDebug("Fy: %d", data->channel2);
+//                         qDebug("Fz: %d", data->channel3);
+//                         qDebug("Mx: %d", data->channel4);
+//                         qDebug("My: %d", data->channel5);
+//                         qDebug("Mz: %d", data->channel6);
                         // qDebug("crc: 0x%04X", data->crc);
                         // qDebug("icount: %d", ++icount);
 
-                        save_file << std::left << std::setw(14) << ++icount << "," << data->channel / 1000 << "," << data->channel2 / 1000 << ","
-                               << data->channel3 / 1000 << "," << data->channel4 / 1000 << "," << data->channel5 / 1000 << ","
-                               << data->channel6 / 1000 << "\n";
+                        save_file << std::left << ++icount << "," << data->channel / 1000.0 << "," << data->channel2 / 1000.0 << ","
+                               << data->channel3 / 1000.0 << "," << data->channel4 / 1000.0 << "," << data->channel5 / 1000.0 << ","
+                               << data->channel6 / 1000.0 << "\n";
                         break;
                     }
                     default:
