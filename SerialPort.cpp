@@ -84,34 +84,47 @@ void SerialPort::handle_data()
 
             if(frame_receive_start_flag)
             {
-                if((count > 2) && (count == *((short*)&frame_data[1]) - 2))
+                //判断是否为接收串口通讯协议格式定义的最后一个字节
+                if((count > 2) && (count == *((short*)&frame_data[1]) - 2 - 1))
                 {
+                    frame_data[count] = res;
 //                    if(CRC16(&frame_data[1],frame_data[0]-1) != frame_data[frame_data[0]])
 //                    {
 //                        count = 0;
 //                        frame_receive_start_flag = false;
 //                        continue;
 //                    }
-                    MSGO_FORCE_CONTROL *data = (MSGO_FORCE_CONTROL*)(char*)&frame_data[0];
-                    qDebug("address: 0x%02X", data->address);
-                    qDebug("length: 0x%04X", data->length);
-                    qDebug("cmd: 0x%01X", data->cmd);
-                    qDebug("channel: 0x%08X", data->channel);
-                    qDebug("channel2: 0x%08X", data->channel2);
-                    qDebug("channel3: 0x%08X", data->channel3);
-                    qDebug("channel4: 0x%08X", data->channel4);
-                    qDebug("channel5: 0x%08X", data->channel5);
-                    qDebug("channel6: 0x%08X", data->channel6);
-                    qDebug("crc: 0x%04X", data->crc);
-                    qDebug("icount: %d", ++icount);
-
+                    //判断命令号
+                    switch (frame_data[3]) {
+                    case 0x10:
+                    {
+                        MSGO_FORCE_CONTROL *data = (MSGO_FORCE_CONTROL*)(char*)&frame_data[0];
+                        qDebug("address: 0x%02X", data->address);
+                        qDebug("length: 0x%04X", data->length);
+                        qDebug("cmd: 0x%01X", data->cmd);
+                        qDebug("Fx: %d", data->channel);
+                        qDebug("Fy: %d", data->channel2);
+                        qDebug("Fz: %d", data->channel3);
+                        qDebug("Mx: %d", data->channel4);
+                        qDebug("My: %d", data->channel5);
+                        qDebug("Mz: %d", data->channel6);
+                        qDebug("crc: 0x%04X", data->crc);
+                        qDebug("icount: %d", ++icount);
+                        break;
+                    }
+                    default:
+                        break;
+                    }
                     count = 0;
                     frame_head = false;
                     frame_receive_start_flag = false;
                 }
                 else
                 {
-                    if(count==2)
+                    frame_data[count] = res;
+                    count++;
+                    //判断数据帧长度是否为串口通讯协议格式定义的长度
+                    if(count==3)
                     {
                         switch (*((short*)&frame_data[1]))
                         {
@@ -125,8 +138,6 @@ void SerialPort::handle_data()
                             continue;
                         }
                     }
-                    frame_data[count] = res;
-                    count++;
                 }
             }
             else
