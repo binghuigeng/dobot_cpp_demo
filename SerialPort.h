@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QSerialPort>
 #include <QThread>
+#include <fstream>
+#include <iomanip>
 
 class SerialPort : public QObject
 {
@@ -25,6 +27,7 @@ public slots:
 private:
     QThread *my_thread;
     QSerialPort *port;
+    std::ofstream save_file;
 };
 
 #endif // SERIALPORT_H

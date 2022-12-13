@@ -2,6 +2,7 @@
 #include <QDebug>
 #include "protocol.h"
 #include "util.h"
+#include <QCoreApplication>
 
 SerialPort::SerialPort(QObject *parent) : QObject(parent)
 {
@@ -17,6 +18,7 @@ SerialPort::SerialPort(QObject *parent) : QObject(parent)
 
 SerialPort::~SerialPort()
 {
+    save_file.close();
     port->close();
     port->deleteLater();
     my_thread->quit();
@@ -46,6 +48,9 @@ void SerialPort::init_port()
     {
         qDebug() << "open it failed";
     }
+    auto app_path = QCoreApplication::applicationDirPath();
+    save_file.open(app_path.toStdString()+"/data.txt", std::ios::trunc);
+
     connect(port, SIGNAL(readyRead()), this, SLOT(handle_data()), Qt::QueuedConnection); //Qt::DirectConnection
 }
 
@@ -99,17 +104,21 @@ void SerialPort::handle_data()
                     case 0x10:
                     {
                         MSGO_FORCE_CONTROL *data = (MSGO_FORCE_CONTROL*)(char*)&frame_data[0];
-                        qDebug("address: 0x%02X", data->address);
-                        qDebug("length: 0x%04X", data->length);
-                        qDebug("cmd: 0x%01X", data->cmd);
-                        qDebug("Fx: %d", data->channel);
-                        qDebug("Fy: %d", data->channel2);
-                        qDebug("Fz: %d", data->channel3);
-                        qDebug("Mx: %d", data->channel4);
-                        qDebug("My: %d", data->channel5);
-                        qDebug("Mz: %d", data->channel6);
-                        qDebug("crc: 0x%04X", data->crc);
-                        qDebug("icount: %d", ++icount);
+                        // qDebug("address: 0x%02X", data->address);
+                        // qDebug("length: 0x%04X", data->length);
+                        // qDebug("cmd: 0x%01X", data->cmd);
+                        // qDebug("Fx: %d", data->channel);
+                        // qDebug("Fy: %d", data->channel2);
+                        // qDebug("Fz: %d", data->channel3);
+                        // qDebug("Mx: %d", data->channel4);
+                        // qDebug("My: %d", data->channel5);
+                        // qDebug("Mz: %d", data->channel6);
+                        // qDebug("crc: 0x%04X", data->crc);
+                        // qDebug("icount: %d", ++icount);
+
+                        save_file << std::left << std::setw(14) << ++icount << "," << data->channel / 1000 << "," << data->channel2 / 1000 << ","
+                               << data->channel3 / 1000 << "," << data->channel4 / 1000 << "," << data->channel5 / 1000 << ","
+                               << data->channel6 / 1000 << "\n";
                         break;
                     }
                     default:
