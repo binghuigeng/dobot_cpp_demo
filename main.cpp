@@ -1,7 +1,8 @@
 #include <QCoreApplication>
 #include "Demo.h"
 #include "SerialPort.h"
-
+#include <pthread.h>
+#include <iostream>
 
 //#include <errno.h>
 //#include <fcntl.h>
@@ -66,6 +67,12 @@
 //}
 
 
+SerialPort uart;
+
+void* func_start(void*){
+    std::cout << "1111\n";
+    uart.init_port();
+}
 
 int main(int argc, char *argv[])
 {
@@ -75,8 +82,26 @@ int main(int argc, char *argv[])
 //    Demo::getInstance()->start();
 
     //启动串口模块
-    SerialPort uart;
-    uart.start();
+    int ret;
+    pthread_t uartThread;
+        //mlockall(MCL_CURRENT | MCL_FUTURE);//锁定内存
+        struct sched_param param = { .sched_priority = sched_get_priority_max(SCHED_FIFO) };
+        pthread_attr_t thattr;
+        pthread_attr_init(&thattr);
+        pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_JOINABLE);
+        pthread_attr_setinheritsched(&thattr, PTHREAD_EXPLICIT_SCHED);
+        pthread_attr_setschedpolicy(&thattr, SCHED_FIFO);
+    //    pthread_attr_setdetachstate(&thattr, PTHREAD_CREATE_JOINABLE);
+    //    pthread_attr_setinheritsched(&thattr, PTHREAD_EXPLICIT_SCHED);
+    //    pthread_attr_setschedpolicy(&thattr, SCHED_FIFO);
+        pthread_attr_setschedparam(&thattr,&param);
+        ret = pthread_create(&uartThread, &thattr, &func_start, NULL);
+        if(ret){
+            std::cout <<"ERROR : pthread_create ethercat task failed\n";
+        }else {
+            pthread_detach(uartThread);
+        }
+//    uart.start();
 
 
 //    char *portname = "/dev/ttyUSB0";
@@ -114,7 +139,7 @@ int main(int argc, char *argv[])
 //            /* repeat read to get full message */
 //        } while (1);
 
-    int ret = a.exec();
+    ret = a.exec();
     {
 //        Demo::deleteInstance();
     }
