@@ -17,10 +17,10 @@ using namespace std;
 
 SerialPort::SerialPort(QObject *parent) : QObject(parent)
 {
-    my_thread = new QThread();
+//    my_thread = new QThread();
 
     // 串口类必须在 moveToThread 之前初始化，否则程序会 crash（崩溃）
-    port = new QSerialPort();
+//    port = new QSerialPort();
 }
 
 SerialPort::~SerialPort()
@@ -41,7 +41,7 @@ void SerialPort::init_port()
 //#else
 //    port->setPortName("/dev/ttyUSB0");                   //串口名 windows下写作COM1
 //#endif
-////    port->setBaudRate(QSerialPort::Baud115200);                           //波特率
+//    port->setBaudRate(QSerialPort::Baud115200);                           //波特率
 //    port->setBaudRate(460800);                         //波特率
 //    port->setDataBits(QSerialPort::Data8);             //数据位
 //    port->setStopBits(QSerialPort::OneStop);           //停止位
@@ -58,25 +58,32 @@ void SerialPort::init_port()
 
 
 
-    auto app_path = QCoreApplication::applicationDirPath();
-    save_file.open(app_path.toStdString()+"/data.txt", std::ios::trunc);
-    start_t = std::chrono::steady_clock::now();
-    end_t = std::chrono::steady_clock::now();
-    gap = std::chrono::milliseconds(4);
+//    auto app_path = QCoreApplication::applicationDirPath();
+//    save_file.open(app_path.toStdString()+"/data.txt", std::ios::trunc);
+//    start_t = std::chrono::steady_clock::now();
+//    end_t = std::chrono::steady_clock::now();
+//    gap = std::chrono::milliseconds(4);
+
+    clock_gettime(CLOCK_MONOTONIC,&time1);
+    clock_gettime(CLOCK_MONOTONIC,&time2);
 //    connect(port, SIGNAL(readyRead()), this, SLOT(handle_data()), Qt::DirectConnection); //Qt::DirectConnection
 
     int icount = 0;
-    while(port->waitForReadyRead(31)) {
-        end_t = std::chrono::steady_clock::now();
-        auto data = port->readAll();
-        if (data.isEmpty())
-            continue;
+//    while(port->waitForReadyRead(31)) {
+//        end_t = std::chrono::steady_clock::now();
+//        clock_gettime(CLOCK_MONOTONIC,&time2);
+//        auto data = port->readAll();
+//        if (data.isEmpty())
+//            continue;
 
-        qDebug()  << ++icount << ","
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - start_t).count() << "ms";
-        start_t=end_t;
-    }
-
+//        qDebug()  << ++icount << ","
+//                  << time2.tv_nsec-time1.tv_nsec << "ns"
+//                  << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - start_t).count() << "ms"
+//                     ;
+//        start_t=end_t;
+//        time1=time2;
+//    }
+struct timespec pried;
     char *portname = "/dev/ttyUSB0";
         int fd;
         int wlen;
@@ -91,11 +98,11 @@ void SerialPort::init_port()
         //set_mincount(fd, 0);                /* set to pure timed read */
 
         /* simple output */
-        wlen = write(fd, "Hello!\n", 7);
-        if (wlen != 7) {
-            printf("Error from write: %d, %d\n", wlen, errno);
-        }
-        tcdrain(fd);    /* delay for output */
+//        wlen = write(fd, "Hello!\n", 7);
+//        if (wlen != 7) {
+//            printf("Error from write: %d, %d\n", wlen, errno);
+//        }
+//        tcdrain(fd);    /* delay for output */
 
 
         /* simple noncanonical input */
@@ -103,19 +110,25 @@ void SerialPort::init_port()
             unsigned char buf[64];
             int rdlen;
 
-            end_t = std::chrono::steady_clock::now();
+            clock_gettime(CLOCK_MONOTONIC,&time2);
 
+            pried = time2;
+            pried.tv_nsec += 2000000;
             rdlen = read(fd, buf, sizeof(buf) - 1);
             if (rdlen > 0) {
-                cout << buf << endl;
+//                cout << buf << endl;
             } else if (rdlen < 0) {
-                printf("Error from read: %d: %s\n", rdlen, strerror(errno));
+                //printf("Error from read: %d: %s\n", rdlen, strerror(errno));
             }
-
-            qDebug()  << ++icount << ","
-                      << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - start_t).count() << "ms";
-            start_t=end_t;
             /* repeat read to get full message */
+
+clock_nanosleep(CLOCK_MONOTONIC,TIMER_ABSTIME,&pried,NULL);
+            std::cout<<   ++icount << ","
+                      << (time2.tv_nsec-time1.tv_nsec)/1000/1000 << "ms"<<std::endl;
+    //                  << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - start_t).count() << "ms"
+                         ;
+            start_t=end_t;
+            time1=time2;
         } while (1);
 
 
@@ -151,7 +164,26 @@ int SerialPort::set_interface_attribs(int fd, int speed)
     /* setup for non-canonical mode */
     tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
     tty.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-    tty.c_oflag &= ~OPOST;
+    tty.c_oflag &= ~OPOST;//    qDebug() << "init_port_id is:" << QThread::currentThreadId();
+    //#ifdef WIN32
+    //    port->setPortName("COM7");                   //串口名 linux下写作/dev/ttyS1
+    //#else
+    //    port->setPortName("/dev/ttyUSB0");                   //串口名 windows下写作COM1
+    //#endif
+    ////    port->setBaudRate(QSerialPort::Baud115200);                           //波特率
+    //    port->setBaudRate(460800);                         //波特率
+    //    port->setDataBits(QSerialPort::Data8);             //数据位
+    //    port->setStopBits(QSerialPort::OneStop);           //停止位
+    //    port->setParity(QSerialPort::NoParity);            //奇偶校验
+    //    port->setFlowControl(QSerialPort::NoFlowControl);  //流控制
+    //    if (port->open(QIODevice::ReadWrite))
+    //    {
+    //        qDebug() << "Port have been opened";
+    //    }
+    //    else
+    //    {
+    //        qDebug() << "open it failed";
+    //    }
 
     /* fetch bytes as they become available */
     tty.c_cc[VMIN] = 1;

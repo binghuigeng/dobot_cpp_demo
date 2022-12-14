@@ -8,6 +8,8 @@
 #include <iomanip>
 #include <chrono>
 
+#include <time.h>
+
 class SerialPort : public QObject
 {
     Q_OBJECT
@@ -35,6 +37,8 @@ private:
     std::ofstream save_file;
     std::chrono::steady_clock::time_point start_t,end_t;
     std::chrono::milliseconds gap;
+    struct timespec time1 = {0, 0};
+    struct timespec time2 = {0, 0};
 };
 
 #endif // SERIALPORT_H
