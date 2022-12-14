@@ -6,6 +6,7 @@
 #include <QThread>
 #include <fstream>
 #include <iomanip>
+#include <chrono>
 
 class SerialPort : public QObject
 {
@@ -16,6 +17,9 @@ public:
 
     void init_port();  //初始化串口
     void start();  //启动串口
+
+
+    int set_interface_attribs(int fd, int speed);
 
 signals:
     //接收数据
@@ -29,6 +33,8 @@ private:
     QThread *my_thread;
     QSerialPort *port;
     std::ofstream save_file;
+    std::chrono::steady_clock::time_point start_t,end_t;
+    std::chrono::milliseconds gap;
 };
 
 #endif // SERIALPORT_H

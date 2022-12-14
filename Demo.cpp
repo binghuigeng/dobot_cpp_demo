@@ -91,6 +91,16 @@ void Demo::run()
     }
 }
 
+double Demo::getToolVectorActual(int index)
+{
+    return m_Feedback.GetFeedbackData().ToolVectorActual[index];
+}
+
+long Demo::getTimeStamp()
+{
+    return m_Feedback.GetFeedbackData().TimeStamp;
+}
+
 void Demo::slotTimeoutReadFeedback()
 {
     if (!m_Feedback.IsDataHasRead())
@@ -304,12 +314,12 @@ void Demo::ServoP()
     pt.rx = -88.0000;
     pt.ry = -40.0000;
     pt.rz = -46.0000;
-    PrintLog(QString::asprintf("send to %s:%hu: ServoP(%s)", m_DobotMove.GetIp().c_str(),
-                               m_DobotMove.GetPort(),pt.ToString().c_str()));
+//    PrintLog(QString::asprintf("send to %s:%hu: ServoP(%s)", m_DobotMove.GetIp().c_str(),
+//                               m_DobotMove.GetPort(),pt.ToString().c_str()));
     std::thread thd([=]{
         std::string ret = m_DobotMove.ServoP(pt);
-        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
-                                   m_DobotMove.GetPort(), ret.c_str()));
+//        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
+//                                   m_DobotMove.GetPort(), ret.c_str()));
     });
     thd.detach();
 }

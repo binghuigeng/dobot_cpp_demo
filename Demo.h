@@ -21,7 +21,14 @@ public:
     //单例模式
     static Demo *getInstance();
     static void deleteInstance();
+
     void run();
+
+    //TCP笛卡尔实际坐标值
+    double getToolVectorActual(int index);
+
+    //获取时间戳（单位ms）
+    long getTimeStamp();
 
 signals:
     void signalPrintLog(QString strLog);
