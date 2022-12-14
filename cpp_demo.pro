@@ -1,4 +1,5 @@
 QT -= gui
+QT += serialport
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -23,7 +24,10 @@ SOURCES += \
         api/ErrorInfoBean.cpp \
         api/ErrorInfoHelper.cpp \
         api/Feedback.cpp \
-        main.cpp
+        main.cpp \
+    protocol.cpp \
+    SerialPort.cpp \
+    util.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -79,7 +83,10 @@ HEADERS += \
     api/rapidjson/stream.h \
     api/rapidjson/stringbuffer.h \
     api/rapidjson/uri.h \
-    api/rapidjson/writer.h
+    api/rapidjson/writer.h \
+    protocol.h \
+    SerialPort.h \
+    util.h
 
 win32 {
     LIBS += -lWs2_32
