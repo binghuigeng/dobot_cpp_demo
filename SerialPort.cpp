@@ -86,9 +86,11 @@ void SerialPort::init_port()
 struct timespec pried;
     char *portname = "/dev/ttyUSB0";
         int fd;
+        int ret;
 //        int wlen;
-
-        fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK);
+           fd_set rfds;
+        fd = open(portname, O_RDONLY | O_NDELAY|O_NOCTTY);
+//               fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC | O_NONBLOCK);
         if (fd < 0) {
             printf("Error opening %s: %s\n", portname, strerror(errno));
             return;
@@ -113,133 +115,140 @@ struct timespec pried;
         static uchar frame_data[30] = {0};
         unsigned char buf[64];
         do {
+            FD_ZERO(&rfds);
+            FD_SET(fd, &rfds);
+            ret = select(fd + 1, &rfds, NULL, NULL, NULL);  //block mode
 
             int rdlen;
             memset(&buf,'\0',sizeof(buf));
             clock_gettime(CLOCK_MONOTONIC,&time2);
 
             pried = time2;
-            pried.tv_nsec += 4000000;
+            pried.tv_nsec += 8000000;
             while (pried.tv_nsec >= 1000000000) {
                 pried.tv_nsec -= 1000000000;
                 pried.tv_sec++;
             }
-            rdlen = read(fd, buf, sizeof(buf));
-            if (rdlen > 0) {
+            if(ret > 0){
+                rdlen = read(fd, buf, sizeof(buf));
+                if (rdlen > 0) {
 
-                std::cout << rdlen << "\n";
-                for(int i=0; i< rdlen; i++)
-                {
-                    res = buf[i];
-                    if(res==0xAA && !frame_head)
+                    std::cout << rdlen << "\n";
+                    for(int i=0; i< 64; i++)
                     {
-                        frame_head = true;
-                        continue;
-                    }
-
-                    if (frame_head)
-                    {
-                        if(res==0x55 && !frame_receive_start_flag)
+                        res = buf[i];
+                        if(res==0xAA && !frame_head)
                         {
-                            frame_receive_start_flag = true;
+                            frame_head = true;
                             continue;
                         }
 
-                        if(frame_receive_start_flag)
+                        if (frame_head)
                         {
-                            //判断是否为接收串口通讯协议格式定义的最后一个字节
-                            if((count > 2) && (count == *((short*)&frame_data[1]) - 2 - 1))
+                            if(res==0x55 && !frame_receive_start_flag)
                             {
-                                frame_data[count] = res;
-            //                    if(CRC16(&frame_data[1],frame_data[0]-1) != frame_data[frame_data[0]])
-            //                    {
-            //                        count = 0;
-            //                        frame_receive_start_flag = false;
-            //                        continue;
-            //                    }
-                                //判断命令号
-                                switch (frame_data[3]) {
-                                case 0x10:
+                                frame_receive_start_flag = true;
+                                continue;
+                            }
+
+                            if(frame_receive_start_flag)
+                            {
+                                //判断是否为接收串口通讯协议格式定义的最后一个字节
+                                if((count > 2) && (count == *((short*)&frame_data[1]) - 2 - 1))
                                 {
-                                    MSGO_FORCE_CONTROL *data = (MSGO_FORCE_CONTROL*)(char*)&frame_data[0];
-                                    // qDebug("address: 0x%02X", data->address);
-                                    // qDebug("length: 0x%04X", data->length);
-                                    // qDebug("cmd: 0x%01X", data->cmd);
-            //                         qDebug("Fx: %d", data->channel);
-            //                         qDebug("Fy: %d", data->channel2);
-            //                         qDebug("Fz: %d", data->channel3);
-            //                         qDebug("Mx: %d", data->channel4);
-            //                         qDebug("My: %d", data->channel5);
-            //                         qDebug("Mz: %d", data->channel6);
-                                    // qDebug("crc: 0x%04X", data->crc);
-                                    // qDebug("icount: %d", ++icount);
+                                    frame_data[count] = res;
+                //                    if(CRC16(&frame_data[1],frame_data[0]-1) != frame_data[frame_data[0]])
+                //                    {
+                //                        count = 0;
+                //                        frame_receive_start_flag = false;
+                //                        continue;
+                //                    }
+                                    //判断命令号
+                                    switch (frame_data[3]) {
+                                    case 0x10:
                                     {
-                                        std::cout << "1111111111111\n";
-                                        save_file << std::left << ++icount << ","
-    //                                              << time2.tv_nsec << "ms ,"
-                                                  << data->channel / 1000.0 << "," << data->channel2 / 1000.0 << ","
-                                               << data->channel3 / 1000.0 << "," << data->channel4 / 1000.0 << "," << data->channel5 / 1000.0 << ","
-                                               << data->channel6 / 1000.0 << ","
-            //                                   << Demo::getInstance()->getToolVectorActual(0) << "," << Demo::getInstance()->getToolVectorActual(1) << ","
-            //                                   << Demo::getInstance()->getToolVectorActual(2)  << "," << Demo::getInstance()->getToolVectorActual(3) << ","
-            //                                   << Demo::getInstance()->getToolVectorActual(4)  << "," << Demo::getInstance()->getToolVectorActual(5) << ","
-            //                                   << Demo::getInstance()->getTimeStamp()
-                                               << "\n";
+                                        MSGO_FORCE_CONTROL *data = (MSGO_FORCE_CONTROL*)(char*)&frame_data[0];
+                                        // qDebug("address: 0x%02X", data->address);
+                                        // qDebug("length: 0x%04X", data->length);
+                                        // qDebug("cmd: 0x%01X", data->cmd);
+                //                         qDebug("Fx: %d", data->channel);
+                //                         qDebug("Fy: %d", data->channel2);
+                //                         qDebug("Fz: %d", data->channel3);
+                //                         qDebug("Mx: %d", data->channel4);
+                //                         qDebug("My: %d", data->channel5);
+                //                         qDebug("Mz: %d", data->channel6);
+                                        // qDebug("crc: 0x%04X", data->crc);
+                                        // qDebug("icount: %d", ++icount);
+                                        {
+                                            std::cout << "1111111111111\n";
+                                            save_file << std::left << ++icount << ","
+        //                                              << time2.tv_nsec << "ms ,"
+                                                      << data->channel / 1000.0 << "," << data->channel2 / 1000.0 << ","
+                                                   << data->channel3 / 1000.0 << "," << data->channel4 / 1000.0 << "," << data->channel5 / 1000.0 << ","
+                                                   << data->channel6 / 1000.0 << ","
+                //                                   << Demo::getInstance()->getToolVectorActual(0) << "," << Demo::getInstance()->getToolVectorActual(1) << ","
+                //                                   << Demo::getInstance()->getToolVectorActual(2)  << "," << Demo::getInstance()->getToolVectorActual(3) << ","
+                //                                   << Demo::getInstance()->getToolVectorActual(4)  << "," << Demo::getInstance()->getToolVectorActual(5) << ","
+                //                                   << Demo::getInstance()->getTimeStamp()
+                                                   << "\n";
+
+                                            time1=time2;
+                                        }
+                                        break;
                                     }
-                                    break;
+                                    default:
+                                        break;
+                                    }
+                                    count = 0;
+                                    frame_head = false;
+                                    frame_receive_start_flag = false;
                                 }
-                                default:
-                                    break;
+                                else
+                                {
+                                    frame_data[count] = res;
+                                    count++;
+                                    //判断数据帧长度是否为串口通讯协议格式定义的长度
+                                    if(count==3)
+                                    {
+                                        switch (*((short*)&frame_data[1]))
+                                        {
+                                        case 0x0020:
+                                        case 0x0026:
+                                            break;
+                                        default:
+                                            count = 0;
+                                            frame_head = false;
+                                            frame_receive_start_flag = false;
+                                            continue;
+                                        }
+                                    }
                                 }
-                                count = 0;
-                                frame_head = false;
-                                frame_receive_start_flag = false;
                             }
                             else
                             {
-                                frame_data[count] = res;
-                                count++;
-                                //判断数据帧长度是否为串口通讯协议格式定义的长度
-                                if(count==3)
-                                {
-                                    switch (*((short*)&frame_data[1]))
-                                    {
-                                    case 0x0020:
-                                    case 0x0026:
-                                        break;
-                                    default:
-                                        count = 0;
-                                        frame_head = false;
-                                        frame_receive_start_flag = false;
-                                        continue;
-                                    }
-                                }
+                                frame_head = false;
+                                continue;
                             }
                         }
-                        else
-                        {
-                            frame_head = false;
-                            continue;
-                        }
                     }
+
+
+
+                } else if (rdlen < 0) {
+                    //printf("Error from read: %d: %s\n", rdlen, strerror(errno));
                 }
+                /* repeat read to get full message */
 
+    //            std::cout<<   ++icount << ","
+    ////                       << (time2.tv_sec-time1.tv_sec) << "s"<< " - "
+    //                      << (time2.tv_nsec-time1.tv_nsec)/1000/1000 << "ms"<<"\n";
+    //    //                  << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - start_t).count() << "ms"
+    //                         ;
 
-
-            } else if (rdlen < 0) {
-                //printf("Error from read: %d: %s\n", rdlen, strerror(errno));
             }
-            /* repeat read to get full message */
-
-clock_nanosleep(CLOCK_MONOTONIC,TIMER_ABSTIME,&pried,NULL);
-//            std::cout<<   ++icount << ","
-////                       << (time2.tv_sec-time1.tv_sec) << "s"<< " - "
-//                      << (time2.tv_nsec-time1.tv_nsec)/1000/1000 << "ms"<<"\n";
-//    //                  << std::chrono::duration_cast<std::chrono::milliseconds>(end_t - start_t).count() << "ms"
-//                         ;
 
 
-            time1=time2;
+            clock_nanosleep(CLOCK_MONOTONIC,TIMER_ABSTIME,&pried,NULL);
         } while (1);
 
 
@@ -297,8 +306,8 @@ int SerialPort::set_interface_attribs(int fd, int speed)
     //    }
 
     /* fetch bytes as they become available */
-    tty.c_cc[VMIN] = 1;
-    tty.c_cc[VTIME] = 1;
+    tty.c_cc[VMIN] = 0;
+    tty.c_cc[VTIME] = 0;
 
     if (tcsetattr(fd, TCSANOW, &tty) != 0) {
         printf("Error from tcsetattr: %s\n", strerror(errno));

@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         Demo.cpp \
+    Rs232Linux.cpp \
         api/BitConverter.cpp \
         api/Dashboard.cpp \
         api/DobotClient.cpp \
@@ -36,6 +37,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     Demo.h \
+    Rs232Linux.h \
     api/BitConverter.h \
     api/Dashboard.h \
     api/DescartesPoint.h \
