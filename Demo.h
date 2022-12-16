@@ -48,7 +48,13 @@ class Demo : public QThread {
     // 设置全局速率比
     void ConfirmSpeed();
 
-    // 点到点运动，目标点位为关节点位
+    //进入拖拽(在报错状态下，不可进入拖拽)
+    void StartDrag();
+
+    //退出拖拽
+    void StopDrag();
+
+    //点到点运动，目标点位为关节点位
     void JointMovJ();
 
     // 点到点运动，目标点位为笛卡尔点位

@@ -182,6 +182,28 @@ void Demo::ConfirmSpeed()
     thd.detach();
 }
 
+void Demo::StartDrag()
+{
+    PrintLog(QString::asprintf("send to %s:%hu: StartDrag()", m_Dashboard.GetIp().c_str(), m_Dashboard.GetPort()));
+    std::thread thd([=]{
+        std::string ret = m_Dashboard.StartDrag();
+        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_Dashboard.GetIp().c_str(),
+                                   m_Dashboard.GetPort(), ret.c_str()));
+    });
+    thd.detach();
+}
+
+void Demo::StopDrag()
+{
+    PrintLog(QString::asprintf("send to %s:%hu: StopDrag()", m_Dashboard.GetIp().c_str(), m_Dashboard.GetPort()));
+    std::thread thd([=]{
+        std::string ret = m_Dashboard.StopDrag();
+        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_Dashboard.GetIp().c_str(),
+                                   m_Dashboard.GetPort(), ret.c_str()));
+    });
+    thd.detach();
+}
+
 void Demo::JointMovJ()
 {
     CJointPoint pt;
