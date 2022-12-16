@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 
     ret = a.exec();
     {
-        //        Demo::deleteInstance();
+        Demo::deleteInstance();
     }
 
     Demo::isrun = false;

@@ -42,6 +42,7 @@ Demo *Demo::getInstance()
 void Demo::deleteInstance()
 {
     QMutexLocker locker(&staticMutex);
+    Demo::isrun = false;
     if(m_instance)
     {
         delete m_instance;
@@ -54,42 +55,72 @@ void Demo::run()
     qDebug("Start Demo,Please observe the movement of the robot");
 
     while (bStop) {
-        //连接3个服务器端口
+//        //连接3个服务器端口
         Connect();
         msleep(500);
 
-        /****** Dashboard端口29999 ******/
-        //使能机器人
-        Enable(true);
-        sleep(5);
-        //设置全局速率比
-        ConfirmSpeed();
-        msleep(500);
+//        /****** Dashboard端口29999 ******/
+//        //使能机器人
+//        Enable(true);
+//        sleep(5);
+//        //设置全局速率比
+//        ConfirmSpeed();
+//        msleep(500);
 
-        /****** 运动相关端口30003 ******/
-        //点到点运动，目标点位为关节点位
-        JointMovJ();
-        sleep(5);
 
-        //点到点运动，目标点位为笛卡尔点位
-        MovJ();
 
-        unsigned int circulate_count = 0;
-        while (circulate_count < 1000) {
-            //基于笛卡尔空间的动态跟随命令
-            ServoP();
-            msleep(4);
-            circulate_count++;
+        //进入拖拽(在报错状态下，不可进入拖拽)
+//        StartDrag();
+//        sleep(10);
+
+        while (Demo::isrun) {
+            getEndActual();
+            msleep(8);
         }
-        sleep(1);
+
+//        /****** 运动相关端口30003 ******/
+//        //点到点运动，目标点位为关节点位
+//        JointMovJ();
+//        sleep(5);
+
+//        //点到点运动，目标点位为笛卡尔点位
+//        MovJ();
+
+//        unsigned int circulate_count = 0;
+//        while (circulate_count < 1000) {
+//            //基于笛卡尔空间的动态跟随命令
+//            ServoP();
+//            msleep(4);
+//            circulate_count++;
+//        }
+//        sleep(1);
 
         //置标志位为假，准备退出循环
         bStop = false;
-
+        StopDrag();
         //下使能机器人
         Enable(false);
         //断开连接
         Disconnect();
+    }
+}
+
+void Demo::getEndActual()
+{
+    std::stringstream buffer;
+    buffer << std::left <<"dobot :"
+           << Demo::getInstance()->getToolVectorActual(0) << "," <<
+              Demo::getInstance()->getToolVectorActual(1) << ","
+           << Demo::getInstance()->getToolVectorActual(2)  << "," <<
+              Demo::getInstance()->getToolVectorActual(3) << ","
+           << Demo::getInstance()->getToolVectorActual(4)  << "," <<
+              Demo::getInstance()->getToolVectorActual(5) << ","
+           << Demo::getInstance()->getTimeStamp()
+           << "\n";
+    while (Demo::isrun) {
+        if (logger.dobot_buffer.enqueue(buffer.str())) {
+            break;
+        }
     }
 }
 

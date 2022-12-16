@@ -1,4 +1,6 @@
-#include <qcoreapplication.h>
+#ifndef LOG_H
+#define LOG_H
+//#include <qcoreapplication.h>
 
 #include <fstream>
 #include <functional>
@@ -20,15 +22,17 @@ class Log {
     void start();
 
    public:
-    moodycamel::ConcurrentQueue<std::string> log_buffer;
+    moodycamel::ConcurrentQueue<std::string> dobot_buffer;
+    moodycamel::ConcurrentQueue<std::string> serial_buffer;
 
    private:
     Log() {
-        auto app_path = QCoreApplication::applicationDirPath();
-        save_file.open(app_path.toStdString() + "/data.txt", std::ios::trunc);
+        save_file.open( "./data.txt", std::ios::trunc);
     };
     std::ofstream save_file;
     struct timespec time1 = {0, 0};
     struct timespec time2 = {0, 0};
     struct timespec period = {0, 0};
 };
+
+#endif //LOG_H

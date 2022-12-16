@@ -141,23 +141,13 @@ void Rs232Linux::parse()
                             std::stringstream buffer;
                             buffer << std::left << std::setw(8) << ++icount
                                    << ","
-                                   //                                      << std::right << std::setw(8) << time2.tv_sec << "s "
-                                   //                                      << std::setw(8) << time2.tv_nsec/1000.0/1000 << "ms ,"
                                    << std::left << std::setw(8) << data->channel / 1000.0 << "," << std::setw(8) << data->channel2 / 1000.0
                                    << "," << std::setw(8) << data->channel3 / 1000.0 << "," << std::setw(8) << data->channel4 / 1000.0
                                    << "," << std::setw(8) << data->channel5 / 1000.0 << "," << std::setw(8)
                                    << data->channel6 / 1000.0
-                                   //                                      << ","
-                                   //                                   << Demo::getInstance()->getToolVectorActual(0) << "," <<
-                                   //                                   Demo::getInstance()->getToolVectorActual(1) << ","
-                                   //                                   << Demo::getInstance()->getToolVectorActual(2)  << "," <<
-                                   //                                   Demo::getInstance()->getToolVectorActual(3) << ","
-                                   //                                   << Demo::getInstance()->getToolVectorActual(4)  << "," <<
-                                   //                                   Demo::getInstance()->getToolVectorActual(5) << ","
-                                   //                                   << Demo::getInstance()->getTimeStamp()
                                    << "\n";
                             while (Demo::isrun) {
-                                if (logger.log_buffer.enqueue(buffer.str())) {
+                                if (logger.serial_buffer.enqueue(buffer.str())) {
                                     break;
                                 }
                             }
@@ -252,7 +242,7 @@ int Rs232Linux::readport(int fd,int maxwaittime)
 //            }
             parse();
             clock_gettime(CLOCK_MONOTONIC,&time2);
-            printf("rec len %d, %lu ms\n",rc_len,(time2.tv_nsec-time1.tv_nsec)/1000/1000);
+//            printf("rec len %d, %lu ms\n",rc_len,(time2.tv_nsec-time1.tv_nsec)/1000/1000);
 
             time1=time2;
 

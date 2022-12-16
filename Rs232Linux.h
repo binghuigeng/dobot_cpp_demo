@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <time.h>
 #include <qcoreapplication.h>
-#include "log/log.hpp"
 #include "Demo.h"
 
 typedef unsigned char uint8;
@@ -22,7 +21,7 @@ typedef void (*OnCommNotifyFunc)(void* arg);
 
 const int package_length = 64;
 const int buff_length = 64;
-const int period_gap = 4*1000*1000;
+const int period_gap = 8*1000*1000;
 
 class Rs232Linux {
    public:

@@ -8,6 +8,7 @@
 #include "api/Dashboard.h"
 #include "api/DobotMove.h"
 #include "api/Feedback.h"
+#include "log/log.hpp"
 
 using namespace Dobot;
 
@@ -22,6 +23,9 @@ class Demo : public QThread {
     static void deleteInstance();
 
     void run();
+
+    //获取末端值
+    void getEndActual();
 
     // TCP笛卡尔实际坐标值
     double getToolVectorActual(int index);
@@ -96,6 +100,7 @@ class Demo : public QThread {
     CFeedback m_Feedback;
     CDobotMove m_DobotMove;
     CDashboard m_Dashboard;
+    Log& logger = Log::get_instance();
 };
 
 #endif  // DEMO_H
