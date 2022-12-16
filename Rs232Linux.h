@@ -60,7 +60,7 @@ class Rs232Linux {
 
     struct timespec time1 = {0, 0};
     struct timespec time2 = {0, 0};
-    struct timespec pried = {0, 0};
+    struct timespec period = {0, 0};
 
     int rq_com_rcv_len2 = 0;
     Log& logger = Log::get_instance();

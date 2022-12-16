@@ -139,13 +139,11 @@ void Rs232Linux::parse()
                         // qDebug("icount: %d", ++icount);
                         {
                             std::stringstream buffer;
-                            buffer << std::left << std::setw(8) << ++icount
-                                   << ","
-                                   << std::left << std::setw(8) << data->channel / 1000.0 << "," << std::setw(8) << data->channel2 / 1000.0
+                            buffer << std::left << std::setw(8) << data->channel / 1000.0 << "," << std::setw(8) << data->channel2 / 1000.0
                                    << "," << std::setw(8) << data->channel3 / 1000.0 << "," << std::setw(8) << data->channel4 / 1000.0
                                    << "," << std::setw(8) << data->channel5 / 1000.0 << "," << std::setw(8)
                                    << data->channel6 / 1000.0
-                                   << "\n";
+                                   << ",";
                             while (Demo::isrun) {
                                 if (logger.serial_buffer.enqueue(buffer.str())) {
                                     break;
@@ -208,14 +206,14 @@ int Rs232Linux::readport(int fd,int maxwaittime)
 //    if(rc>0)
 	{
 
-        clock_gettime(CLOCK_MONOTONIC,&pried);
+        clock_gettime(CLOCK_MONOTONIC,&period);
 
-        pried.tv_nsec += period_gap;
-        while (pried.tv_nsec >= 1000000000) {
-            pried.tv_nsec -= 1000000000;
-            pried.tv_sec++;
+        period.tv_nsec += period_gap;
+        while (period.tv_nsec >= 1000000000) {
+            period.tv_nsec -= 1000000000;
+            period.tv_sec++;
         }
-        clock_nanosleep(CLOCK_MONOTONIC,TIMER_ABSTIME,&pried,NULL);
+        clock_nanosleep(CLOCK_MONOTONIC,TIMER_ABSTIME,&period,NULL);
 
         rc_len = read(fd,recbuff,buff_length);
         for(int i = 0; i < rc_len; i++)

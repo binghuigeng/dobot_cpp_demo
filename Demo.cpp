@@ -75,7 +75,14 @@ void Demo::run()
 
         while (Demo::isrun) {
             getEndActual();
-            msleep(8);
+            clock_gettime(CLOCK_MONOTONIC, &period);
+
+            period.tv_nsec += 8 * 1000 * 1000;
+            while (period.tv_nsec >= 1000000000) {
+                period.tv_nsec -= 1000000000;
+                period.tv_sec++;
+            }
+            clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &period, NULL);
         }
 
 //        /****** 运动相关端口30003 ******/
@@ -108,7 +115,7 @@ void Demo::run()
 void Demo::getEndActual()
 {
     std::stringstream buffer;
-    buffer << std::left <<"dobot :"
+    buffer << std::left 
            << Demo::getInstance()->getToolVectorActual(0) << "," <<
               Demo::getInstance()->getToolVectorActual(1) << ","
            << Demo::getInstance()->getToolVectorActual(2)  << "," <<
@@ -116,11 +123,9 @@ void Demo::getEndActual()
            << Demo::getInstance()->getToolVectorActual(4)  << "," <<
               Demo::getInstance()->getToolVectorActual(5) << ","
            << Demo::getInstance()->getTimeStamp()
-           << "\n";
-    while (Demo::isrun) {
-        if (logger.dobot_buffer.enqueue(buffer.str())) {
-            break;
-        }
+           << ",";
+    while (Demo::isrun && logger.dobot_buffer.enqueue(buffer.str())) {
+        break;
     }
 }
 

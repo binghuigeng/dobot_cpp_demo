@@ -101,6 +101,8 @@ class Demo : public QThread {
     CDobotMove m_DobotMove;
     CDashboard m_Dashboard;
     Log& logger = Log::get_instance();
+    struct timespec time_start = {0, 0};
+    struct timespec period = {0, 0};
 };
 
 #endif  // DEMO_H
