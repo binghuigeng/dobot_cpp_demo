@@ -146,7 +146,7 @@ void Rs232Linux::parse()
                                    << ",";
                             while (Demo::isrun) {
                                 if (logger.serial_buffer.enqueue(buffer.str())) {
-                                    break;
+                                    return;
                                 }
                             }
                             //                            time1=time2;
@@ -255,7 +255,7 @@ int Rs232Linux::readport(int fd,int maxwaittime)
 }
 int	Rs232Linux::openport(char *Dev)   
 {
-    fd = open( Dev, O_RDONLY|O_NOCTTY|O_NDELAY );
+    fd = open( Dev, O_RDONLY|O_NOCTTY );
 	if (-1 == fd) 
 	{    
 		perror("Can''t Open Serial Port");

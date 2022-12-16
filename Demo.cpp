@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QDebug>
+#include <iomanip>
 
 #include "api/ErrorInfoHelper.h"
 
@@ -77,7 +78,7 @@ void Demo::run()
             getEndActual();
             clock_gettime(CLOCK_MONOTONIC, &period);
 
-            period.tv_nsec += 8 * 1000 * 1000;
+            period.tv_nsec += 4 * 1000 * 1000;
             while (period.tv_nsec >= 1000000000) {
                 period.tv_nsec -= 1000000000;
                 period.tv_sec++;
@@ -116,14 +117,13 @@ void Demo::getEndActual()
 {
     std::stringstream buffer;
     buffer << std::left 
-           << Demo::getInstance()->getToolVectorActual(0) << "," <<
-              Demo::getInstance()->getToolVectorActual(1) << ","
-           << Demo::getInstance()->getToolVectorActual(2)  << "," <<
-              Demo::getInstance()->getToolVectorActual(3) << ","
-           << Demo::getInstance()->getToolVectorActual(4)  << "," <<
-              Demo::getInstance()->getToolVectorActual(5) << ","
-           << Demo::getInstance()->getTimeStamp()
-           << ",";
+           << std::setw(8) << Demo::getInstance()->getToolVectorActual(0) << ","
+           << std::setw(8) << Demo::getInstance()->getToolVectorActual(1) << ","
+           << std::setw(8) << Demo::getInstance()->getToolVectorActual(2)  << ","
+           << std::setw(8) << Demo::getInstance()->getToolVectorActual(3) << ","
+           << std::setw(8) << Demo::getInstance()->getToolVectorActual(4)  << ","
+           << std::setw(8) << Demo::getInstance()->getToolVectorActual(5) << ","
+           ;
     while (Demo::isrun && logger.dobot_buffer.enqueue(buffer.str())) {
         break;
     }
