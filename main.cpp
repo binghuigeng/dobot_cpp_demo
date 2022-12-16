@@ -5,7 +5,6 @@
 
 #include "Demo.h"
 #include "Rs232Linux.h"
-#include "SerialPort.h"
 
 // #include <errno.h>
 // #include <fcntl.h>
@@ -85,7 +84,7 @@ int main(int argc, char* argv[]) {
     QCoreApplication a(argc, argv);
 
     // 启动Demo线程
-    //    Demo::getInstance()->start();
+    Demo::getInstance()->start();
 
     //     启动串口模块
     int ret;
