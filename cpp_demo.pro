@@ -1,7 +1,7 @@
 QT -= gui
 QT += serialport
 
-CONFIG += c++20 console
+CONFIG += c++2a console
 CONFIG -= app_bundle
 
 # The following define makes your compiler emit warnings if you use
@@ -17,7 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         Demo.cpp \
-    Rs232Linux.cpp \
+        Rs232Linux.cpp \
         api/BitConverter.cpp \
         api/Dashboard.cpp \
         api/DobotClient.cpp \
@@ -25,6 +25,7 @@ SOURCES += \
         api/ErrorInfoBean.cpp \
         api/ErrorInfoHelper.cpp \
         api/Feedback.cpp \
+        log/log.cpp \
         main.cpp \
     protocol.cpp \
     SerialPort.cpp \
@@ -86,6 +87,8 @@ HEADERS += \
     api/rapidjson/stringbuffer.h \
     api/rapidjson/uri.h \
     api/rapidjson/writer.h \
+    3rd-party/concurrentqueue.h \
+    log/log.hpp \
     protocol.h \
     SerialPort.h \
     util.h

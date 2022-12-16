@@ -15,10 +15,12 @@ Demo *Demo::m_instance = nullptr;
 QMutex Demo::staticMutex;
 bool Demo::bStop = true;
 
+
 Demo::~Demo()
 {
     CDobotClient::UinitNet();
 
+    isrun = false;
     //退出线程
     quit();
     wait();
@@ -429,7 +431,6 @@ void Demo::ParseWarn()
 Demo::Demo(QObject *parent) : QThread(parent)
 {
     CDobotClient::InitNet();
-
     m_pTimerReader = new QTimer(this);
     m_pTimerReader->setInterval(100);
     connect(m_pTimerReader, &QTimer::timeout, this, &Demo::slotTimeoutReadFeedback);

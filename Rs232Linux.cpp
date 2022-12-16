@@ -87,10 +87,10 @@ void Rs232Linux::uart_pthread(void* arg)
 void Rs232Linux::parse()
 {
     static int icount = 0;
-    uchar res = 0;
+    unsigned char res = 0;
     static bool frame_head = false, frame_receive_start_flag = false;
     static int count = 0;
-    static uchar frame_data[30] = {0};
+    static unsigned char frame_data[30] = {0};
     auto  buf = rq_com_rcv_buff2;
     for(int i=0; i< 64; i++)
     {
@@ -138,24 +138,30 @@ void Rs232Linux::parse()
                         // qDebug("crc: 0x%04X", data->crc);
                         // qDebug("icount: %d", ++icount);
                         {
-                            save_file << std::left << std::setw(8) << ++icount << ","
-//                                      << std::right << std::setw(8) << time2.tv_sec << "s "
-//                                      << std::setw(8) << time2.tv_nsec/1000.0/1000 << "ms ,"
-                                      << std::left
-                                      << std::setw(8) << data->channel / 1000.0 << ","
-                                      << std::setw(8) << data->channel2 / 1000.0 << ","
-                                      << std::setw(8) << data->channel3 / 1000.0 << ","
-                                      << std::setw(8) << data->channel4 / 1000.0 << ","
-                                      << std::setw(8) << data->channel5 / 1000.0 << ","
-                                      << std::setw(8) << data->channel6 / 1000.0
-//                                      << ","
-                                         //                                   << Demo::getInstance()->getToolVectorActual(0) << "," << Demo::getInstance()->getToolVectorActual(1) << ","
-                                         //                                   << Demo::getInstance()->getToolVectorActual(2)  << "," << Demo::getInstance()->getToolVectorActual(3) << ","
-                                         //                                   << Demo::getInstance()->getToolVectorActual(4)  << "," << Demo::getInstance()->getToolVectorActual(5) << ","
-                                         //                                   << Demo::getInstance()->getTimeStamp()
-                                      << "\n";
-
-//                            time1=time2;
+                            std::stringstream buffer;
+                            buffer << std::left << std::setw(8) << ++icount
+                                   << ","
+                                   //                                      << std::right << std::setw(8) << time2.tv_sec << "s "
+                                   //                                      << std::setw(8) << time2.tv_nsec/1000.0/1000 << "ms ,"
+                                   << std::left << std::setw(8) << data->channel / 1000.0 << "," << std::setw(8) << data->channel2 / 1000.0
+                                   << "," << std::setw(8) << data->channel3 / 1000.0 << "," << std::setw(8) << data->channel4 / 1000.0
+                                   << "," << std::setw(8) << data->channel5 / 1000.0 << "," << std::setw(8)
+                                   << data->channel6 / 1000.0
+                                   //                                      << ","
+                                   //                                   << Demo::getInstance()->getToolVectorActual(0) << "," <<
+                                   //                                   Demo::getInstance()->getToolVectorActual(1) << ","
+                                   //                                   << Demo::getInstance()->getToolVectorActual(2)  << "," <<
+                                   //                                   Demo::getInstance()->getToolVectorActual(3) << ","
+                                   //                                   << Demo::getInstance()->getToolVectorActual(4)  << "," <<
+                                   //                                   Demo::getInstance()->getToolVectorActual(5) << ","
+                                   //                                   << Demo::getInstance()->getTimeStamp()
+                                   << "\n";
+                            while (Demo::isrun) {
+                                if (logger.log_buffer.enqueue(buffer.str())) {
+                                    break;
+                                }
+                            }
+                            //                            time1=time2;
                         }
                         break;
                     }

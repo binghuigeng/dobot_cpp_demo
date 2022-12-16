@@ -9,8 +9,9 @@
 #include <termios.h>
 #include <unistd.h>
 #include <time.h>
-#include <fstream>
 #include <qcoreapplication.h>
+#include "log/log.hpp"
+#include "Demo.h"
 
 typedef unsigned char uint8;
 typedef char int8;
@@ -25,12 +26,8 @@ const int period_gap = 4*1000*1000;
 
 class Rs232Linux {
    public:
-    Rs232Linux(){
-            auto app_path = QCoreApplication::applicationDirPath();
-            save_file.open(app_path.toStdString()+"/data.txt", std::ios::trunc);
-    };
-    ~Rs232Linux(){
-        save_file.close();}
+    Rs232Linux(){};
+    ~Rs232Linux(){}
     virtual void Init(unsigned char* strname);
     virtual void SetNotifyHandler(OnCommNotifyFunc notifyfunc, void* tag);
     virtual int WriteBuffer(char* buf, int len);
@@ -67,8 +64,7 @@ class Rs232Linux {
     struct timespec pried = {0, 0};
 
     int rq_com_rcv_len2 = 0;
-    std::ofstream save_file;
-
+    Log& logger = Log::get_instance();
 };
 //---------------------------------------------------------------------------
 #endif
