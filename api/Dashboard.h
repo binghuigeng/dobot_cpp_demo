@@ -73,6 +73,18 @@ namespace Dobot
         /// <returns>返回执行结果的描述信息</returns>
         std::string GetErrorID();
 
+        /// <summary>
+        /// 进入拖拽(在报错状态下，不可进入拖拽)
+        /// </summary>
+        /// <returns>返回执行结果的描述信息</returns>
+        std::string StartDrag();
+
+        /// <summary>
+        /// 退出拖拽
+        /// </summary>
+        /// <returns>返回执行结果的描述信息</returns>
+        std::string StopDrag();
+
     protected:
         void OnConnected() override;
         void OnDisconnected() override;

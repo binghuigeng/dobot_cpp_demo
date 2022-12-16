@@ -163,4 +163,36 @@ namespace Dobot
 
         return WaitReply(5000);
     }
+
+    std::string CDashboard::StartDrag()
+    {
+        if (!IsConnected())
+        {
+            return "device does not connected!!!";
+        }
+
+        std::string str = "StartDrag()";
+        if (!SendData(str))
+        {
+            return str + ":send error";
+        }
+
+        return WaitReply(5000);
+    }
+
+    std::string CDashboard::StopDrag()
+    {
+        if (!IsConnected())
+        {
+            return "device does not connected!!!";
+        }
+
+        std::string str = "StopDrag()";
+        if (!SendData(str))
+        {
+            return str + ":send error";
+        }
+
+        return WaitReply(5000);
+    }
 }
