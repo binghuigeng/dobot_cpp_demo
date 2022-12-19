@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <iomanip>
 
+#include "algorithm/Control.h"
 #include "api/ErrorInfoHelper.h"
 
 //静态成员变量初始化
@@ -73,9 +74,8 @@ void Demo::run()
         //进入拖拽(在报错状态下，不可进入拖拽)
 //        StartDrag();
 //        sleep(10);
-
+        double serial_data[6] = {};
         while (Demo::isrun) {
-            getEndActual();
             clock_gettime(CLOCK_MONOTONIC, &period);
 
             period.tv_nsec += 4 * 1000 * 1000;
@@ -83,8 +83,34 @@ void Demo::run()
                 period.tv_nsec -= 1000000000;
                 period.tv_sec++;
             }
+
+            // 准备数据
+            // 机器人数据 robot_data
+            getEndActual();
+            // 传感器数据
+            while (control_algorithm.serial_data.try_dequeue(serial_data)) {
+                // sensor_data.push_back(serial_data);
+                break;
+            }
+            // 过滤数据
+            Mat1x6 sensor_mat1x6,robot_mat1x6;
+            for (const auto& data : serial_data) {
+                sensor_mat1x6 << data;
+            }
+            for (const auto& data : robot_data) {
+                robot_mat1x6 << data;
+            }
+            control_algorithm.FilterSensor(sensor_mat1x6 ,10000);
+            control_algorithm.FilterRobot(robot_mat1x6 ,10000);
+            // impc()
+            control_algorithm.impC((Mat1x3 fd, Mat1x3 ft, Mat1x3 prePose, Mat1x3 expPose);
+            // 欧拉
+            control_algorithm.Euler2M4d();
+            // sleep
             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &period, NULL);
         }
+
+
 
 //        /****** 运动相关端口30003 ******/
 //        //点到点运动，目标点位为关节点位
@@ -124,6 +150,11 @@ void Demo::getEndActual()
            << std::setw(8) << Demo::getInstance()->getToolVectorActual(4)  << ","
            << std::setw(8) << Demo::getInstance()->getToolVectorActual(5) << ","
            ;
+
+    for (int i = 0; i < 6; i++) {
+        robot_data[i] = getToolVectorActual(i);
+    }
+    // robot_data = {getToolVectorActual(0),getToolVectorActual(1),getToolVectorActual(2),getToolVectorActual(3),getToolVectorActual(4),getToolVectorActual(5)});
     while (Demo::isrun && logger.dobot_buffer.enqueue(buffer.str())) {
         break;
     }

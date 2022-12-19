@@ -16,17 +16,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        Demo.cpp \
-        Rs232Linux.cpp \
-        api/BitConverter.cpp \
-        api/Dashboard.cpp \
-        api/DobotClient.cpp \
-        api/DobotMove.cpp \
-        api/ErrorInfoBean.cpp \
-        api/ErrorInfoHelper.cpp \
-        api/Feedback.cpp \
-        log/log.cpp \
-        main.cpp \
+    Demo.cpp \
+    Rs232Linux.cpp \
+    algorithm/Control.c \
+    api/BitConverter.cpp \
+    api/Dashboard.cpp \
+    api/DobotClient.cpp \
+    api/DobotMove.cpp \
+    api/ErrorInfoBean.cpp \
+    api/ErrorInfoHelper.cpp \
+    api/Feedback.cpp \
+    log/log.cpp \
+    main.cpp \
     protocol.cpp \
     SerialPort.cpp \
     util.cpp
@@ -39,6 +40,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     Demo.h \
     Rs232Linux.h \
+    algorithm/Control.h \
     api/BitConverter.h \
     api/Dashboard.h \
     api/DescartesPoint.h \

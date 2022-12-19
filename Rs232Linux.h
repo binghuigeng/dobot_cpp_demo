@@ -11,6 +11,7 @@
 #include <time.h>
 #include <qcoreapplication.h>
 #include "Demo.h"
+#include "algorithm/Control.h"
 
 typedef unsigned char uint8;
 typedef char int8;
@@ -64,6 +65,7 @@ class Rs232Linux {
 
     int rq_com_rcv_len2 = 0;
     Log& logger = Log::get_instance();
+    Control& control_algorithm = Control::get_instance();
 };
 //---------------------------------------------------------------------------
 #endif

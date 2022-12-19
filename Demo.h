@@ -9,6 +9,7 @@
 #include "api/DobotMove.h"
 #include "api/Feedback.h"
 #include "log/log.hpp"
+#include "algorithm/Control.h"
 
 using namespace Dobot;
 
@@ -101,6 +102,9 @@ class Demo : public QThread {
     CDobotMove m_DobotMove;
     CDashboard m_Dashboard;
     Log& logger = Log::get_instance();
+    Control& control_algorithm = Control::get_instance();
+    double robot_data[6] = {};
+    // std::vector<double[6]> sensor_data = {};
     struct timespec time_start = {0, 0};
     struct timespec period = {0, 0};
 };

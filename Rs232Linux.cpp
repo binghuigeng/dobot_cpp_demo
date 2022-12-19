@@ -84,72 +84,66 @@ void Rs232Linux::uart_pthread(void* arg)
     }
 }
 
-void Rs232Linux::parse()
-{
+void Rs232Linux::parse() {
     unsigned char res = 0;
     static bool frame_head = false, frame_receive_start_flag = false;
     static int count = 0;
     static unsigned char frame_data[30] = {0};
-    auto  buf = rq_com_rcv_buff2;
-    for(int i=0; i< 64; i++)
-    {
-        res = buf[i];
-        if(res==0xAA && !frame_head)
-        {
-            frame_head = true;
+    auto buf = rq_com_rcv_buff2;
+    for (int i = 0; i < 64; i++) {
+    res = buf[i];
+    if (res == 0xAA && !frame_head) {
+        frame_head = true;
+        continue;
+    }
+
+    if (frame_head) {
+        if (res == 0x55 && !frame_receive_start_flag) {
+            frame_receive_start_flag = true;
             continue;
         }
 
-        if (frame_head)
-        {
-            if(res==0x55 && !frame_receive_start_flag)
-            {
-                frame_receive_start_flag = true;
-                continue;
-            }
-
-            if(frame_receive_start_flag)
-            {
-                //判断是否为接收串口通讯协议格式定义的最后一个字节
-                if((count > 2) && (count == *((short*)&frame_data[1]) - 2 - 1))
-                {
-                    frame_data[count] = res;
-//                    if(CRC16(&frame_data[1],frame_data[0]-1) != frame_data[frame_data[0]])
-//                    {
-//                        count = 0;
-//                        frame_receive_start_flag = false;
-//                        continue;
-//                    }
-                    //判断命令号
-                    switch (frame_data[3]) {
-                    case 0x10:
-                    {
-                        MSGO_FORCE_CONTROL *data = (MSGO_FORCE_CONTROL*)(char*)&frame_data[0];
+        if (frame_receive_start_flag) {
+            // 判断是否为接收串口通讯协议格式定义的最后一个字节
+            if ((count > 2) && (count == *((short *)&frame_data[1]) - 2 - 1)) {
+                frame_data[count] = res;
+                //                    if(CRC16(&frame_data[1],frame_data[0]-1) != frame_data[frame_data[0]])
+                //                    {
+                //                        count = 0;
+                //                        frame_receive_start_flag = false;
+                //                        continue;
+                //                    }
+                // 判断命令号
+                switch (frame_data[3]) {
+                    case 0x10: {
+                        MSGO_FORCE_CONTROL *data = (MSGO_FORCE_CONTROL *)(char *)&frame_data[0];
                         // qDebug("address: 0x%02X", data->address);
                         // qDebug("length: 0x%04X", data->length);
                         // qDebug("cmd: 0x%01X", data->cmd);
-//                         qDebug("Fx: %d", data->channel);
-//                         qDebug("Fy: %d", data->channel2);
-//                         qDebug("Fz: %d", data->channel3);
-//                         qDebug("Mx: %d", data->channel4);
-//                         qDebug("My: %d", data->channel5);
-//                         qDebug("Mz: %d", data->channel6);
+                        //                         qDebug("Fx: %d", data->channel);
+                        //                         qDebug("Fy: %d", data->channel2);
+                        //                         qDebug("Fz: %d", data->channel3);
+                        //                         qDebug("Mx: %d", data->channel4);
+                        //                         qDebug("My: %d", data->channel5);
+                        //                         qDebug("Mz: %d", data->channel6);
                         // qDebug("crc: 0x%04X", data->crc);
                         // qDebug("icount: %d", ++icount);
                         {
                             std::stringstream buffer;
-                            buffer << std::left << std::setw(8) << data->channel / 1000.0
-                                   << "," << std::setw(8) << data->channel2 / 1000.0
-                                   << "," << std::setw(8) << data->channel3 / 1000.0
-                                   << "," << std::setw(8) << data->channel4 / 1000.0
-                                   << "," << std::setw(8) << data->channel5 / 1000.0
-                                   << "," << std::setw(8) << data->channel6 / 1000.0
+                            buffer << std::left << std::setw(8) << data->channel / 1000.0 << "," << std::setw(8) << data->channel2 / 1000.0
+                                   << "," << std::setw(8) << data->channel3 / 1000.0 << "," << std::setw(8) << data->channel4 / 1000.0
+                                   << "," << std::setw(8) << data->channel5 / 1000.0 << "," << std::setw(8) << data->channel6 / 1000.0
                                    << ",";
 
                             while (Demo::isrun) {
-//                                std::cout << "raw : " << buffer.str() << "\n";
-                                if (logger.serial_buffer.enqueue(buffer.str())) {
-
+                                //                                std::cout << "raw : " << buffer.str() << "\n";
+                                while (control_algorithm.serial_data.enqueue({data->channel / 1000.0, data->channel2 / 1000.0,
+                                                                              data->channel3 / 1000.0, data->channel4 / 1000.0,
+                                                                              data->channel5 / 1000.0, data->channel6 / 1000.0})) 
+                                {
+                                    break;
+                                }
+                                while (logger.serial_buffer.enqueue(buffer.str())) {
                                     count = 0;
                                     frame_head = false;
                                     frame_receive_start_flag = false;
@@ -162,20 +156,16 @@ void Rs232Linux::parse()
                     }
                     default:
                         break;
-                    }
-                    count = 0;
-                    frame_head = false;
-                    frame_receive_start_flag = false;
                 }
-                else
-                {
-                    frame_data[count] = res;
-                    count++;
-                    //判断数据帧长度是否为串口通讯协议格式定义的长度
-                    if(count==3)
-                    {
-                        switch (*((short*)&frame_data[1]))
-                        {
+                count = 0;
+                frame_head = false;
+                frame_receive_start_flag = false;
+            } else {
+                frame_data[count] = res;
+                count++;
+                // 判断数据帧长度是否为串口通讯协议格式定义的长度
+                if (count == 3) {
+                    switch (*((short *)&frame_data[1])) {
                         case 0x0020:
                         case 0x0026:
                             break;
@@ -184,20 +174,17 @@ void Rs232Linux::parse()
                             frame_head = false;
                             frame_receive_start_flag = false;
                             continue;
-                        }
                     }
                 }
             }
-            else
-            {
-                frame_head = false;
-                continue;
-            }
+        } else {
+            frame_head = false;
+            continue;
         }
     }
-
-
+    }
 }
+
 ///check uart data receve or not
 int Rs232Linux::readport(int fd,int maxwaittime)
 {
