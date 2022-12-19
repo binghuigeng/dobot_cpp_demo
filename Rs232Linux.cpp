@@ -126,17 +126,19 @@ void Rs232Linux::parse() {
                     switch (frame_data[5]) {
                     case 0x10: {
                         MSGO_FORCE_CONTROL *data = (MSGO_FORCE_CONTROL *)frame_data;
-                        // qDebug("address: 0x%02X", data->address);
-                        // qDebug("length: 0x%04X", data->length);
-                        // qDebug("cmd: 0x%01X", data->cmd);
-                        //                         qDebug("Fx: %d", data->channel);
-                        //                         qDebug("Fy: %d", data->channel2);
-                        //                         qDebug("Fz: %d", data->channel3);
-                        //                         qDebug("Mx: %d", data->channel4);
-                        //                         qDebug("My: %d", data->channel5);
-                        //                         qDebug("Mz: %d", data->channel6);
-                        // qDebug("crc: 0x%04X", data->crc);
-                        // qDebug("icount: %d", ++icount);
+//                        qDebug("address: 0x%02X", data->header);
+//                        qDebug("address: 0x%02X", data->header2);
+//                        qDebug("address: 0x%02X", data->address);
+//                        qDebug("length: 0x%04X", data->length);
+//                        qDebug("cmd: 0x%01X", data->cmd);
+//                        qDebug("Fx: %d", data->channel);
+//                        qDebug("Fy: %d", data->channel2);
+//                        qDebug("Fz: %d", data->channel3);
+//                        qDebug("Mx: %d", data->channel4);
+//                        qDebug("My: %d", data->channel5);
+//                        qDebug("Mz: %d", data->channel6);
+//                        qDebug("crc: 0x%04X", data->crc);
+//                        qDebug("icount: %d", ++icount);
                         {
                             std::stringstream buffer;
                             buffer << std::left << std::setw(8) << data->channel / 1000.0 << "," << std::setw(8) << data->channel2 / 1000.0

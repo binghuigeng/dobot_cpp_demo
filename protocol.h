@@ -7,6 +7,8 @@
 
 //串口通讯协议格式
 struct MSGO_FORCE_CONTROL{
+    unsigned char header;     //帧头0xAA
+    unsigned char header2;    //帧头0x55
     unsigned char address;    //地址
     short length;             //数据帧长度
     unsigned char cmd;        //命令号
