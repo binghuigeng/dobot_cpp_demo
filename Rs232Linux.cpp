@@ -86,7 +86,6 @@ void Rs232Linux::uart_pthread(void* arg)
 
 void Rs232Linux::parse()
 {
-    static int icount = 0;
     unsigned char res = 0;
     static bool frame_head = false, frame_receive_start_flag = false;
     static int count = 0;
@@ -139,14 +138,17 @@ void Rs232Linux::parse()
                         // qDebug("icount: %d", ++icount);
                         {
                             std::stringstream buffer;
-                            buffer << std::left << std::setw(8) << data->channel / 1000.0 << "," << std::setw(8) << data->channel2 / 1000.0
-                                   << "," << std::setw(8) << data->channel3 / 1000.0 << "," << std::setw(8) << data->channel4 / 1000.0
-                                   << "," << std::setw(8) << data->channel5 / 1000.0 << "," << std::setw(8)
-                                   << data->channel6 / 1000.0
+                            buffer << std::left << std::setw(8) << data->channel / 1000.0
+                                   << "," << std::setw(8) << data->channel2 / 1000.0
+                                   << "," << std::setw(8) << data->channel3 / 1000.0
+                                   << "," << std::setw(8) << data->channel4 / 1000.0
+                                   << "," << std::setw(8) << data->channel5 / 1000.0
+                                   << "," << std::setw(8) << data->channel6 / 1000.0
                                    << ",";
+
                             while (Demo::isrun) {
                                 if (logger.serial_buffer.enqueue(buffer.str())) {
-                                    return;
+                                    break;
                                 }
                             }
                             //                            time1=time2;
