@@ -77,7 +77,8 @@ void Demo::run()
         //进入拖拽(在报错状态下，不可进入拖拽)
         StartDrag();
         sleep(5);
-        double serial_data[6] = {};
+        Mat1x6 serial_data = {};
+        Mat1x3 fd = {0,0,10};
         while (Demo::isrun) {
             ServoP();
             getEndActual();
@@ -98,19 +99,15 @@ void Demo::run()
                 break;
             }
             // 过滤数据
-            Mat1x6 sensor_mat1x6,robot_mat1x6;
-            for (const auto& data : serial_data) {
-                sensor_mat1x6 << data;
-            }
-            for (const auto& data : robot_data) {
-                robot_mat1x6 << data;
-            }
-            control_algorithm.FilterSensor(sensor_mat1x6 ,10000);
-            control_algorithm.FilterRobot(robot_mat1x6 ,10000);
+            control_algorithm.FilterSensor(serial_data ,10000);
+            control_algorithm.FilterRobot(robot_data ,10000);
+
             // impc()
-            // control_algorithm.impC((Mat1x3 fd, Mat1x3 ft, Mat1x3 prePose, Mat1x3 expPose);
+            control_algorithm.impC(fd, {serial_data[0], serial_data[1], serial_data[2]}, {robot_data[0], robot_data[1], robot_data[2]});
+
             // 欧拉
-            // control_algorithm.Euler2M4d();
+            control_algorithm.Euler2M4d();
+
             // sleep
             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &period, NULL);
         }
@@ -157,7 +154,7 @@ void Demo::getEndActual()
            ;
 
     for (int i = 0; i < 6; i++) {
-        robot_data[i] = getToolVectorActual(i);
+        robot_data << getToolVectorActual(i);
     }
     // robot_data = {getToolVectorActual(0),getToolVectorActual(1),getToolVectorActual(2),getToolVectorActual(3),getToolVectorActual(4),getToolVectorActual(5)});
     while (Demo::isrun && logger.dobot_buffer.enqueue(buffer.str())) {

@@ -26,15 +26,15 @@ class Control {
     static Mat3x3 Kxyz, prePose, expPose;
     static Mat4x4 ToolMatonBase;
 
-    void impC(Mat1x3 fd, Mat1x3 ft, Mat1x3 prePose, Mat1x3 expPose);
+    void impC(Mat1x3 fd, Mat1x3 ft, Mat1x3 expPose);
     void Euler2M4d(Mat1x6 ToolVectorActual);
     Mat1x3 integral(Mat1x3 u);
     void Transport2ServoP();
     void FilterSensor(Mat1x6 SensorValue,int filter_value);
     void FilterRobot(Mat1x6 RobotValue,int filter_value);
 
-    moodycamel::ConcurrentQueue<double[6]> dobot_data;
-    moodycamel::ConcurrentQueue<double[6]> serial_data;
+    moodycamel::ConcurrentQueue<Mat1x6> dobot_data;
+    moodycamel::ConcurrentQueue<Mat1x6> serial_data;
    private:
     Control();
     static double eps;

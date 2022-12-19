@@ -103,7 +103,7 @@ class Demo : public QThread {
     CDashboard m_Dashboard;
     Log& logger = Log::get_instance();
     Control& control_algorithm = Control::get_instance();
-    double robot_data[6] = {};
+    Mat1x6 robot_data = {};
     // std::vector<double[6]> sensor_data = {};
     struct timespec time_start = {0, 0};
     struct timespec period = {0, 0};

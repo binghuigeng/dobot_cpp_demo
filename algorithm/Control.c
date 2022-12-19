@@ -28,7 +28,7 @@ Mat1x3 Control::integral(Mat1x3 u) {
     return x2;
 }
 
-void Control::impC(Mat1x3 Fd, Mat1x3 Ft, Mat3x3 prePose, Mat3x3 expPose)  // for Fd 期望力Fx Fy Fz, Ft是测量力
+void Control::impC(Mat1x3 Fd, Mat1x3 Ft, Mat3x3 expPose)  // for Fd 期望力Fx Fy Fz, Ft是测量力
 {
     Mat1x3 m, a, v, s;
     a = prePose.block(0, 0, 0, 2);
