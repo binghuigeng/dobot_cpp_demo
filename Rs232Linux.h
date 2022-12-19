@@ -20,7 +20,7 @@ typedef signed int int16;
 typedef void (*OnCommNotifyFunc)(void* arg);
 
 const int package_length = 32;
-const int buff_length = 32;
+const int buff_length = 64;
 const int period_gap = 2*1000*1000;
 
 class Rs232Linux {

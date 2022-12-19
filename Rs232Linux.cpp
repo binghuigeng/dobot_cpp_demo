@@ -79,7 +79,7 @@ void Rs232Linux::uart_pthread(void* arg)
     int rc = 0;
     while(1)
     {      
-    rc=readport(fd,10); //10 haomiao
+    rc=readport(fd,4); //10 haomiao
 	usleep(100);
     }
 }
@@ -147,8 +147,13 @@ void Rs232Linux::parse()
                                    << ",";
 
                             while (Demo::isrun) {
+//                                std::cout << "raw : " << buffer.str() << "\n";
                                 if (logger.serial_buffer.enqueue(buffer.str())) {
-                                    break;
+
+                                    count = 0;
+                                    frame_head = false;
+                                    frame_receive_start_flag = false;
+                                    return;
                                 }
                             }
                             //                            time1=time2;
@@ -215,7 +220,6 @@ int Rs232Linux::readport(int fd,int maxwaittime)
             period.tv_nsec -= 1000000000;
             period.tv_sec++;
         }
-        clock_nanosleep(CLOCK_MONOTONIC,TIMER_ABSTIME,&period,NULL);
 
         rc_len = read(fd,recbuff,buff_length);
         for(int i = 0; i < rc_len; i++)
@@ -236,17 +240,15 @@ int Rs232Linux::readport(int fd,int maxwaittime)
         //If there is enough characters,...
         if(rq_com_rcv_len2 >= package_length && rc_len >= 1)
         {
-//            printf("data : ");
-//            for (int index = 0;index < rq_com_rcv_len2;index++) {
-//                printf("%02X",rq_com_rcv_buff2[index]);
-//            }
             parse();
-            clock_gettime(CLOCK_MONOTONIC,&time2);
-//            printf("rec len %d, %lu ms\n",rc_len,(time2.tv_nsec-time1.tv_nsec)/1000/1000);
 
-            time1=time2;
+            // 显示serial时间
+//            clock_gettime(CLOCK_MONOTONIC,&time2);
+//            printf("rec len %d, %lu ms\n",rc_len,(time2.tv_nsec-time1.tv_nsec)/1000/1000);
+//            time1=time2;
 
         }
+        clock_nanosleep(CLOCK_MONOTONIC,TIMER_ABSTIME,&period,NULL);
 	}
 //    memset(&recbuff,'\0',buff_length);
 //	else

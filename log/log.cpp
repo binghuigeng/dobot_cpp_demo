@@ -43,7 +43,6 @@ void Log::start() {
             period.tv_nsec -= 1000000000;
             period.tv_sec++;
         }
-        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &period, NULL);
         {
             save_file << number_count++ << ", ";
             while (dobot_buffer.try_dequeue(dobot_data_buff)) {
@@ -69,9 +68,11 @@ void Log::start() {
                       << serial_data_buff
                       << "\n";
             clock_gettime(CLOCK_MONOTONIC, &time2);
-            std::cout << number_count << " log time : " << (time2.tv_nsec - time1.tv_nsec) / 1000.0 / 1000.0 << "ms\n";
+//            std::cout << number_count << " log : " << serial_data_buff << "\n";
+//            std::cout << number_count << " log time : " << (time2.tv_nsec - time1.tv_nsec) / 1000.0 / 1000.0 << "ms\n";
 
             //            now = std::chrono::steady_clock::now();
         }
+        clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &period, NULL);
     }
 }
