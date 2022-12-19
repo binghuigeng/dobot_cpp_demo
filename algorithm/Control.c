@@ -8,8 +8,9 @@ Control::Control() {
 }
 
 // ToolVectorActual to Mat4x4 (欧拉角转旋转矩阵 x/pitch, y/yaw, z/roll)
-void Control::Euler2M4d(Mat1x6 ToolVectorActual)  // 从机器人读到的值 输入是mm 角度
+void Control::Euler2M4d()  // 从机器人读到的值 输入是mm 角度
 {
+    ToolVectorActual = preRobotValue;
     ToolMatonBase.block(0, 3, 3, 3) = ToolVectorActual.block(0, 0, 0, 2).transpose();
     ToolMatonBase.block.row(3) << 0, 0, 0, 1;
     // std::cout << "RZ/RY/RX: " << RZ << " " << RY << " " << RX << std::endl;
@@ -28,7 +29,7 @@ Mat1x3 Control::integral(Mat1x3 u) {
     return x2;
 }
 
-void Control::impC(Mat1x3 Fd, Mat1x3 Ft, Mat3x3 expPose)  // for Fd 期望力Fx Fy Fz, Ft是测量力
+void Control::impC(Mat1x3 Fd, Mat1x3 Ft)  // for Fd 期望力Fx Fy Fz, Ft是测量力
 {
     Mat1x3 m, a, v, s;
     a = prePose.block(0, 0, 0, 2);
@@ -53,7 +54,7 @@ void Control::Transport2ServoP() {
     ServoP.block(0, 0, 0, 2) = expP.block(0, 3, 2, 3).transpose();
     ServoP.block(0, 3, 0, 5) = ToolVectorActual.block(0, 3, 0, 5);
 }
-void Control::FilterSensor(Mat1x6 SensorValue,int filter_value) {
+void Control::FilterSensor(Mat1x6 SensorValue, int filter_value) {
     for (int i = 0; i < 6; i++) {
         if (fabs(SensorValue(i) - preSensorValue(i)) > filter_value) {
             SensorValue(i) = preSensorValue(i);
@@ -62,7 +63,7 @@ void Control::FilterSensor(Mat1x6 SensorValue,int filter_value) {
     preSensorValue = SensorValue;
 }
 
-void Control::FilterRobot(Mat1x6 RobotValue,int filter_value) {
+void Control::FilterRobot(Mat1x6 RobotValue, int filter_value) {
     for (int i = 0; i < 6; i++) {
         if (fabs(RobotValue(i) - preRobotValue(i)) > filter_value) {
             RobotValue(i) = preRobotValue(i);

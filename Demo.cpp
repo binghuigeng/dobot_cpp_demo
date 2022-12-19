@@ -80,8 +80,6 @@ void Demo::run()
         Mat1x6 serial_data = {};
         Mat1x3 fd = {0,0,10};
         while (Demo::isrun) {
-            ServoP();
-            getEndActual();
             clock_gettime(CLOCK_MONOTONIC, &period);
 
             period.tv_nsec += 4 * 1000 * 1000;
@@ -90,6 +88,7 @@ void Demo::run()
                 period.tv_sec++;
             }
 
+            ServoP();
             // 准备数据
             // 机器人数据 robot_data
             getEndActual();
@@ -99,15 +98,17 @@ void Demo::run()
                 break;
             }
             // 过滤数据
-            control_algorithm.FilterSensor(serial_data ,10000);
-            control_algorithm.FilterRobot(robot_data ,10000);
+            control_algorithm.FilterSensor(serial_data ,500);
+            control_algorithm.FilterRobot(robot_data ,8000);
 
             // impc()
-            control_algorithm.impC(fd, {serial_data[0], serial_data[1], serial_data[2]}, {robot_data[0], robot_data[1], robot_data[2]});
+            control_algorithm.impC(fd, {serial_data[0], serial_data[1], serial_data[2]});
 
             // 欧拉
             control_algorithm.Euler2M4d();
-
+            // transpot to ServoP
+            control_algorithm.Transport2ServoP();
+            auto servo_p = control_algorithm.ServoP;
             // sleep
             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &period, NULL);
         }
