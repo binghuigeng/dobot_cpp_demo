@@ -79,6 +79,20 @@ void Demo::run()
         sleep(5);
         Mat1x6 serial_data = {};
         Mat1x3 fd = {0,0,10};
+
+        getEndActual();
+        // 传感器数据
+        while (control_algorithm.serial_data.try_dequeue(serial_data)) {
+            // sensor_data.push_back(serial_data);
+            break;
+        }
+        Control::init_sensor = serial_data;
+
+        control_algorithm.FilterRobot(robot_data, 8000);
+        init_servop = robot_data;
+
+
+
         while (Demo::isrun) {
             clock_gettime(CLOCK_MONOTONIC, &period);
 
@@ -88,7 +102,6 @@ void Demo::run()
                 period.tv_sec++;
             }
 
-            ServoP();
             // 准备数据
             // 机器人数据 robot_data
             getEndActual();
@@ -108,7 +121,7 @@ void Demo::run()
             control_algorithm.Euler2M4d();
             // transpot to ServoP
             control_algorithm.Transport2ServoP();
-            auto servo_p = control_algorithm.ServoP;
+            ServoP();
             // sleep
             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &period, NULL);
         }
@@ -426,13 +439,17 @@ void Demo::ServoP()
 //    pt.rz = -46.0000;
 
     //点二（离插孔很近）
-    pt.x = 614.742;
-    pt.y = 67.29;
-    pt.z = 423.727;
-    pt.rx = -89.419;
-    pt.ry = 1.547;
-    pt.rz = -62.841;
-
+    auto &servo_p = control_algorithm.ServoP;
+    
+    pt.x = servo_p(0);
+    pt.y = servo_p(1);
+    pt.z = servo_p(2);
+    pt.rx = servo_p(3);
+    pt.ry = servo_p(4);
+    pt.rz = servo_p(5);
+    if (fabs(pt.x-init_servop(0))>100) {
+        pt.x = servo_p(0);
+    }
     PrintLog(QString::asprintf("send to %s:%hu: ServoP(%s)", m_DobotMove.GetIp().c_str(),
                                m_DobotMove.GetPort(),pt.ToString().c_str()));
     std::thread thd([=]{

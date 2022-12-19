@@ -22,8 +22,8 @@ class Control {
         return instance;
     }
 
-    static Mat1x6 preSensorValue, SensorValue, ServoP;
-    static Mat1x6 preRobotValue, RobotValue;
+    static Mat1x6 preSensorValue, SensorValue, ServoP,filtered_tool_vector_actual;
+    static Mat1x6 preRobotValue, RobotValue, init_sensor;
     static Mat3x3 Kxyz, prePose, expPose;
     static Mat4x4 ToolMatonBase;
 
@@ -41,5 +41,6 @@ class Control {
     Control();
     static double eps;
     static Mat1x3 x1;
+    double kavs_limit[3] = {};
 };
 #endif  // CONTROL_H
