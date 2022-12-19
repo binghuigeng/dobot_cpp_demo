@@ -69,13 +69,18 @@ void Demo::run()
 //        ConfirmSpeed();
 //        msleep(500);
 
-
+        //点到点运动，目标点位为笛卡尔点位
+        //机器人末端移动到离插孔很近的位置
+        MovJ();
+        sleep(5);
 
         //进入拖拽(在报错状态下，不可进入拖拽)
-//        StartDrag();
-//        sleep(10);
+        StartDrag();
+        sleep(5);
         double serial_data[6] = {};
         while (Demo::isrun) {
+            ServoP();
+            getEndActual();
             clock_gettime(CLOCK_MONOTONIC, &period);
 
             period.tv_nsec += 4 * 1000 * 1000;
@@ -103,9 +108,9 @@ void Demo::run()
             control_algorithm.FilterSensor(sensor_mat1x6 ,10000);
             control_algorithm.FilterRobot(robot_mat1x6 ,10000);
             // impc()
-            control_algorithm.impC((Mat1x3 fd, Mat1x3 ft, Mat1x3 prePose, Mat1x3 expPose);
+            // control_algorithm.impC((Mat1x3 fd, Mat1x3 ft, Mat1x3 prePose, Mat1x3 expPose);
             // 欧拉
-            control_algorithm.Euler2M4d();
+            // control_algorithm.Euler2M4d();
             // sleep
             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &period, NULL);
         }
@@ -131,7 +136,7 @@ void Demo::run()
 
         //置标志位为假，准备退出循环
         bStop = false;
-        StopDrag();
+//        StopDrag();
         //下使能机器人
         Enable(false);
         //断开连接
@@ -294,12 +299,28 @@ void Demo::JointMovJ()
 void Demo::MovJ()
 {
     CDescartesPoint pt;
-    pt.x = -287.0000;
-    pt.y = 652.0000;
-    pt.z = 890.0000;
-    pt.rx = -88.0000;
-    pt.ry = -40.0000;
-    pt.rz = -46.0000;
+//    pt.x = -287.0000;
+//    pt.y = 652.0000;
+//    pt.z = 890.0000;
+//    pt.rx = -88.0000;
+//    pt.ry = -40.0000;
+//    pt.rz = -46.0000;
+    
+    //点一（离插孔稍远）
+//    pt.x = 448.824;
+//    pt.y = 178.199;
+//    pt.z = 439.214;
+//    pt.rx = -90.121;
+//    pt.ry = 1.513;
+//    pt.rz = -45.001;
+
+    //点二（离插孔很近）
+    pt.x = 614.742;
+    pt.y = 67.29;
+    pt.z = 423.727;
+    pt.rx = -89.419;
+    pt.ry = 1.547;
+    pt.rz = -62.841;
 
     PrintLog(QString::asprintf("send to %s:%hu: MovJ(%s)", m_DobotMove.GetIp().c_str(),
                                m_DobotMove.GetPort(),pt.ToString().c_str()));
@@ -399,18 +420,27 @@ void Demo::ServoJ()
 void Demo::ServoP()
 {
     CDescartesPoint pt;
-    pt.x = -287.0000;
-    pt.y = 652.0000;
-    pt.z = 890.0000;
-    pt.rx = -88.0000;
-    pt.ry = -40.0000;
-    pt.rz = -46.0000;
-//    PrintLog(QString::asprintf("send to %s:%hu: ServoP(%s)", m_DobotMove.GetIp().c_str(),
-//                               m_DobotMove.GetPort(),pt.ToString().c_str()));
+//    pt.x = -287.0000;
+//    pt.y = 652.0000;
+//    pt.z = 890.0000;
+//    pt.rx = -88.0000;
+//    pt.ry = -40.0000;
+//    pt.rz = -46.0000;
+
+    //点二（离插孔很近）
+    pt.x = 614.742;
+    pt.y = 67.29;
+    pt.z = 423.727;
+    pt.rx = -89.419;
+    pt.ry = 1.547;
+    pt.rz = -62.841;
+
+    PrintLog(QString::asprintf("send to %s:%hu: ServoP(%s)", m_DobotMove.GetIp().c_str(),
+                               m_DobotMove.GetPort(),pt.ToString().c_str()));
     std::thread thd([=]{
         std::string ret = m_DobotMove.ServoP(pt);
-//        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
-//                                   m_DobotMove.GetPort(), ret.c_str()));
+        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
+                                   m_DobotMove.GetPort(), ret.c_str()));
     });
     thd.detach();
 }
