@@ -7,6 +7,6 @@
  */
 
 /// CRC校验码计算
-unsigned short CRC16(unsigned char* pBuf, unsigned short len);
+unsigned short CRC16(const unsigned char* pBuf, unsigned short len);
 
 #endif // UTIL_H

@@ -72,11 +72,13 @@ void Demo::run()
         //点到点运动，目标点位为笛卡尔点位
         //机器人末端移动到离插孔很近的位置
         MovJ();
-        sleep(5);
+        sleep(3);
+
+        std::cout << "MovJ end" << std::endl;
 
         //进入拖拽(在报错状态下，不可进入拖拽)
-        StartDrag();
-        sleep(5);
+//        StartDrag();
+//        sleep(5);
         Mat1x6 serial_data = {};
         Mat1x3 fd = {0,0,10};
 
@@ -317,6 +319,14 @@ void Demo::MovJ()
 //    pt.ry = -40.0000;
 //    pt.rz = -46.0000;
     
+    //新点一（离插孔稍远）
+    pt.x = 540.0000;
+    pt.y = 19.0000;
+    pt.z = 524.0000;
+    pt.rx = -90.0000;
+    pt.ry = 2.0000;
+    pt.rz = -64.0000;
+
     //点一（离插孔稍远）
 //    pt.x = 448.824;
 //    pt.y = 178.199;
@@ -326,12 +336,12 @@ void Demo::MovJ()
 //    pt.rz = -45.001;
 
     //点二（离插孔很近）
-    pt.x = 614.742;
-    pt.y = 67.29;
-    pt.z = 423.727;
-    pt.rx = -89.419;
-    pt.ry = 1.547;
-    pt.rz = -62.841;
+//    pt.x = 614.742;
+//    pt.y = 67.29;
+//    pt.z = 423.727;
+//    pt.rx = -89.419;
+//    pt.ry = 1.547;
+//    pt.rz = -62.841;
 
     PrintLog(QString::asprintf("send to %s:%hu: MovJ(%s)", m_DobotMove.GetIp().c_str(),
                                m_DobotMove.GetPort(),pt.ToString().c_str()));
@@ -430,6 +440,29 @@ void Demo::ServoJ()
 
 void Demo::ServoP()
 {
+    static double x = 540.0000;
+//    double x, y, z, rx, ry, rz;
+//    x = 448.824;
+//    y = 178.199;
+//    z = 439.214;
+//    rx = -90.121;
+//    ry = 1.513;
+//    rz = -45.001;
+    static bool bfirst = false;
+    if(x >= 560)
+    {
+        if(!bfirst)
+        {
+            x= 560;
+            std::cout << "ServoP end" << std::endl;
+            bfirst = true;
+        }
+    }
+    else
+    {
+        x += 0.04;
+    }
+
     CDescartesPoint pt;
 //    pt.x = -287.0000;
 //    pt.y = 652.0000;
@@ -437,6 +470,30 @@ void Demo::ServoP()
 //    pt.rx = -88.0000;
 //    pt.ry = -40.0000;
 //    pt.rz = -46.0000;
+
+    //新点一（离插孔稍远）
+    pt.x = x;
+    pt.y = 19.0000;
+    pt.z = 524.0000;
+    pt.rx = -90.0000;
+    pt.ry = 2.0000;
+    pt.rz = -64.0000;
+
+    //点一（离插孔稍远）
+//    pt.x = 448.824;
+//    pt.y = 178.199;
+//    pt.z = 439.214;
+//    pt.rx = -90.121;
+//    pt.ry = 1.513;
+//    pt.rz = -45.001;
+
+    //点二（离插孔很近）
+//    pt.x = 614.742;
+//    pt.y = 67.29;
+//    pt.z = 423.727;
+//    pt.rx = -89.419;
+//    pt.ry = 1.547;
+//    pt.rz = -62.841;
 
     //点二（离插孔很近）
     auto &servo_p = control_algorithm.ServoP;
