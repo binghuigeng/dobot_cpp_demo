@@ -522,15 +522,15 @@ void Demo::ServoP()
     pt.ry = servo_p(4);
     pt.rz = servo_p(5);
 
-    if (fabs(pt.x-init_servop(0))>100) {
-        pt.x = init_servop(0);
-    }
-    if (fabs(pt.y-init_servop(1))>100) {
-        pt.y = init_servop(1);
-    }
-    if (fabs(pt.z-init_servop(2))>100) {
-        pt.z = init_servop(2);
-    }
+//    if (fabs(pt.x-init_servop(0))>100) {
+//        pt.x = init_servop(0);
+//    }
+//    if (fabs(pt.y-init_servop(1))>100) {
+//        pt.y = init_servop(1);
+//    }
+//    if (fabs(pt.z-init_servop(2))>100) {
+//        pt.z = init_servop(2);
+//    }
 
 //    std::cout << "result : " << pt.ToString() << "\n";
 //    PrintLog(QString::asprintf("send to %s:%hu: ServoP(%s)", m_DobotMove.GetIp().c_str(),
