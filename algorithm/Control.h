@@ -22,15 +22,15 @@ class Control {
         return instance;
     }
 
-    static Mat1x6 preSensorValue, SensorValue, ServoP,filtered_tool_vector_actual;
-    static Mat1x6 preRobotValue, RobotValue, init_sensor;
-    static Mat3x3 Kxyz, prePose, expPose;
-    static Mat4x4 ToolMatonBase;
+    Mat1x6 preSensorValue, SensorValue, ServoP,filtered_tool_vector_actual;
+    Mat1x6 preRobotValue, RobotValue, init_sensor;
+    Mat3x3 Kxyz, prePose, expPose;
+    Mat4x4 ToolMatonBase;
 
     void impC(Mat1x3 fd, Mat1x3 ft);
     void Euler2M4d();
     Mat1x3 integral(Mat1x3 u);
-    void Transport2ServoP();
+    void Transport2ServoP(Mat1x6 real_value);
     void FilterSensor(Mat1x6 SensorValue, int filter_value);
     void FilterRobot(Mat1x6 RobotValue, int filter_value);
 
@@ -39,8 +39,8 @@ class Control {
 
    private:
     Control();
-    static double eps;
-    static Mat1x3 x1;
-    double kavs_limit[3] = {};
+    double eps = 0;
+    Mat1x3 x1;
+    double kavs_limit[3];
 };
 #endif  // CONTROL_H

@@ -61,13 +61,16 @@ void Demo::run()
         Connect();
         msleep(500);
 
+//        StopDrag();
+//        msleep(1000);
+
 //        /****** Dashboard端口29999 ******/
-//        //使能机器人
-//        Enable(true);
-//        sleep(5);
-//        //设置全局速率比
-//        ConfirmSpeed();
-//        msleep(500);
+        //使能机器人
+        Enable(true);
+        sleep(5);
+        //设置全局速率比
+        ConfirmSpeed();
+        msleep(500);
 
         //点到点运动，目标点位为笛卡尔点位
         //机器人末端移动到离插孔很近的位置
@@ -80,24 +83,29 @@ void Demo::run()
 //        StartDrag();
 //        sleep(5);
         Mat1x6 serial_data = {};
-        Mat1x3 fd = {0,0,10};
+//        Mat1x3 fd = {0,0,-10};
+        Mat1x3 fd = {0,0,-10};
+        Mat1x3 ft = {0,0,0};
 
         getEndActual();
+        control_algorithm.ServoP = robot_data;
+
+//        std::cout << "robot  data : " << robot_data << "\n";
         // 传感器数据
         while (control_algorithm.serial_data.try_dequeue(serial_data)) {
             // sensor_data.push_back(serial_data);
             break;
         }
-        Control::init_sensor = serial_data;
+//        std::cout << "serial data : " << serial_data << "\n";
+        control_algorithm.init_sensor = serial_data;
 
         control_algorithm.FilterRobot(robot_data, 8000);
         init_servop = robot_data;
 
-
-
         while (Demo::isrun) {
             clock_gettime(CLOCK_MONOTONIC, &period);
 
+//            clock_gettime(CLOCK_MONOTONIC, &time_start);
             period.tv_nsec += 4 * 1000 * 1000;
             while (period.tv_nsec >= 1000000000) {
                 period.tv_nsec -= 1000000000;
@@ -106,7 +114,9 @@ void Demo::run()
 
             // 准备数据
             // 机器人数据 robot_data
+//            std::cout << "get robot value\n";
             getEndActual();
+//            std::cout << "robot  : " << robot_data << "\n";
             // 传感器数据
             while (control_algorithm.serial_data.try_dequeue(serial_data)) {
                 // sensor_data.push_back(serial_data);
@@ -116,16 +126,24 @@ void Demo::run()
             control_algorithm.FilterSensor(serial_data ,500);
             control_algorithm.FilterRobot(robot_data ,8000);
 
+//            std::cout << "filter data\n";
             // impc()
-            control_algorithm.impC(fd, {serial_data[0], serial_data[1], serial_data[2]});
-
+            ft << serial_data[0], serial_data[1], serial_data[2];
+            control_algorithm.impC(fd, ft);
+//            std::cout << "impC\n";
             // 欧拉
             control_algorithm.Euler2M4d();
+//            std::cout << "Euler\n";
             // transpot to ServoP
-            control_algorithm.Transport2ServoP();
+            control_algorithm.Transport2ServoP(robot_data);
+//            std::cout << "transpot\n";
             ServoP();
             // sleep
             clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &period, NULL);
+
+//            clock_gettime(CLOCK_MONOTONIC, &time_end);
+//            std::cout << "time : " << (time_end.tv_nsec-time_start.tv_nsec)/1000.0/1000 << "ms\n";
+
         }
 
 
@@ -169,9 +187,8 @@ void Demo::getEndActual()
            << std::setw(8) << Demo::getInstance()->getToolVectorActual(5) << ","
            ;
 
-    for (int i = 0; i < 6; i++) {
-        robot_data << getToolVectorActual(i);
-    }
+    robot_data << getToolVectorActual(0) , getToolVectorActual(1) , getToolVectorActual(2) , getToolVectorActual(3) , getToolVectorActual(4) , getToolVectorActual(5);
+
     // robot_data = {getToolVectorActual(0),getToolVectorActual(1),getToolVectorActual(2),getToolVectorActual(3),getToolVectorActual(4),getToolVectorActual(5)});
     while (Demo::isrun && logger.dobot_buffer.enqueue(buffer.str())) {
         break;
@@ -320,12 +337,12 @@ void Demo::MovJ()
 //    pt.rz = -46.0000;
     
     //新点一（离插孔稍远）
-    pt.x = 540.0000;
-    pt.y = 19.0000;
-    pt.z = 524.0000;
-    pt.rx = -90.0000;
-    pt.ry = 2.0000;
-    pt.rz = -64.0000;
+//    pt.x = 540.0000;
+//    pt.y = 19.0000;
+//    pt.z = 524.0000;
+//    pt.rx = -90.0000;
+//    pt.ry = 2.0000;
+//    pt.rz = -64.0000;
 
     //点一（离插孔稍远）
 //    pt.x = 448.824;
@@ -336,19 +353,19 @@ void Demo::MovJ()
 //    pt.rz = -45.001;
 
     //点二（离插孔很近）
-//    pt.x = 614.742;
-//    pt.y = 67.29;
-//    pt.z = 423.727;
-//    pt.rx = -89.419;
-//    pt.ry = 1.547;
-//    pt.rz = -62.841;
+    pt.x = 614.742;
+    pt.y = 67.29;
+    pt.z = 423.727;
+    pt.rx = -89.419;
+    pt.ry = 1.547;
+    pt.rz = -62.841;
 
-    PrintLog(QString::asprintf("send to %s:%hu: MovJ(%s)", m_DobotMove.GetIp().c_str(),
-                               m_DobotMove.GetPort(),pt.ToString().c_str()));
+//    PrintLog(QString::asprintf("send to %s:%hu: MovJ(%s)", m_DobotMove.GetIp().c_str(),
+//                               m_DobotMove.GetPort(),pt.ToString().c_str()));
     std::thread thd([=]{
         std::string ret = m_DobotMove.MovJ(pt);
-        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
-                                   m_DobotMove.GetPort(), ret.c_str()));
+//        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
+//                                   m_DobotMove.GetPort(), ret.c_str()));
     });
     thd.detach();
 }
@@ -440,7 +457,7 @@ void Demo::ServoJ()
 
 void Demo::ServoP()
 {
-    static double x = 540.0000;
+//    static double x = 540.0000;
 //    double x, y, z, rx, ry, rz;
 //    x = 448.824;
 //    y = 178.199;
@@ -448,20 +465,20 @@ void Demo::ServoP()
 //    rx = -90.121;
 //    ry = 1.513;
 //    rz = -45.001;
-    static bool bfirst = false;
-    if(x >= 560)
-    {
-        if(!bfirst)
-        {
-            x= 560;
-            std::cout << "ServoP end" << std::endl;
-            bfirst = true;
-        }
-    }
-    else
-    {
-        x += 0.04;
-    }
+//    static bool bfirst = false;
+//    if(x >= 560)
+//    {
+//        if(!bfirst)
+//        {
+//            x= 560;
+//            std::cout << "ServoP end" << std::endl;
+//            bfirst = true;
+//        }
+//    }
+//    else
+//    {
+//        x += 0.04;
+//    }
 
     CDescartesPoint pt;
 //    pt.x = -287.0000;
@@ -472,12 +489,12 @@ void Demo::ServoP()
 //    pt.rz = -46.0000;
 
     //新点一（离插孔稍远）
-    pt.x = x;
-    pt.y = 19.0000;
-    pt.z = 524.0000;
-    pt.rx = -90.0000;
-    pt.ry = 2.0000;
-    pt.rz = -64.0000;
+//    pt.x = x;
+//    pt.y = 19.0000;
+//    pt.z = 524.0000;
+//    pt.rx = -90.0000;
+//    pt.ry = 2.0000;
+//    pt.rz = -64.0000;
 
     //点一（离插孔稍远）
 //    pt.x = 448.824;
@@ -504,15 +521,24 @@ void Demo::ServoP()
     pt.rx = servo_p(3);
     pt.ry = servo_p(4);
     pt.rz = servo_p(5);
+
     if (fabs(pt.x-init_servop(0))>100) {
-        pt.x = servo_p(0);
+        pt.x = init_servop(0);
     }
-    PrintLog(QString::asprintf("send to %s:%hu: ServoP(%s)", m_DobotMove.GetIp().c_str(),
-                               m_DobotMove.GetPort(),pt.ToString().c_str()));
+    if (fabs(pt.y-init_servop(1))>100) {
+        pt.y = init_servop(1);
+    }
+    if (fabs(pt.z-init_servop(2))>100) {
+        pt.z = init_servop(2);
+    }
+
+//    std::cout << "result : " << pt.ToString() << "\n";
+//    PrintLog(QString::asprintf("send to %s:%hu: ServoP(%s)", m_DobotMove.GetIp().c_str(),
+//                               m_DobotMove.GetPort(),pt.ToString().c_str()));
     std::thread thd([=]{
         std::string ret = m_DobotMove.ServoP(pt);
-        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
-                                   m_DobotMove.GetPort(), ret.c_str()));
+//        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
+//                                   m_DobotMove.GetPort(), ret.c_str()));
     });
     thd.detach();
 }

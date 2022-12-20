@@ -1,7 +1,7 @@
 QT -= gui
 QT += serialport
 
-CONFIG += c++20 console
+CONFIG += c++23 console
 CONFIG -= app_bundle
 
 # The following define makes your compiler emit warnings if you use
@@ -18,7 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     Demo.cpp \
     Rs232Linux.cpp \
-    algorithm/Control.c \
+    algorithm/Control.cpp \
     api/BitConverter.cpp \
     api/Dashboard.cpp \
     api/DobotClient.cpp \

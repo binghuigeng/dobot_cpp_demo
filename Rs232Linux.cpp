@@ -4,6 +4,7 @@
 #include <iomanip>
 #include "protocol.h"
 #include "util.h"
+#include "3rd-party/concurrentqueue.h"
 
 void *FuncThread(void *arg)
 {
