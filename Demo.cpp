@@ -61,6 +61,13 @@ void Demo::run()
         Connect();
         msleep(500);
 
+//        //复位，用于清除错误
+//        ClearError();
+//        msleep(500);
+//        //机器人停止
+//        ResetRobot();
+//        msleep(500);
+
 //        StopDrag();
 //        msleep(1000);
 
@@ -72,16 +79,22 @@ void Demo::run()
         ConfirmSpeed();
         msleep(500);
 
-        //点到点运动，目标点位为笛卡尔点位
-        //机器人末端移动到离插孔很近的位置
-        MovJ();
-        sleep(3);
+//        //点到点运动，目标点位为笛卡尔点位
+//        //机器人末端移动到离插孔很近的位置
+//        MovJ();
+//        sleep(3);
+//        std::cout << "MovJ end" << std::endl;
 
-        std::cout << "MovJ end" << std::endl;
+        // 直线运动，目标点位为笛卡尔点位
+        MovL();
+        sleep(5);
+        std::cout << "MovL end" << std::endl;
 
         //进入拖拽(在报错状态下，不可进入拖拽)
 //        StartDrag();
-//        sleep(5);
+//        sleep(3);
+
+#if 0
         Mat1x6 serial_data = {};
 //        Mat1x3 fd = {0,0,-10};
         Mat1x3 fd = {0,0,-10};
@@ -126,6 +139,9 @@ void Demo::run()
             control_algorithm.FilterSensor(serial_data ,500);
             control_algorithm.FilterRobot(robot_data ,8000);
 
+            // 受力过大时，进入拖动示教状态
+            overstressAutoStartDrag(serial_data, 200);
+
 //            std::cout << "filter data\n";
             // impc()
             ft << serial_data[0], serial_data[1], serial_data[2];
@@ -145,8 +161,7 @@ void Demo::run()
 //            std::cout << "time : " << (time_end.tv_nsec-time_start.tv_nsec)/1000.0/1000 << "ms\n";
 
         }
-
-
+#endif
 
 //        /****** 运动相关端口30003 ******/
 //        //点到点运动，目标点位为关节点位
@@ -306,6 +321,41 @@ void Demo::StopDrag()
     thd.detach();
 }
 
+void Demo::ClearError()
+{
+    PrintLog(QString::asprintf("send to %s:%hu: ClearError()", m_Dashboard.GetIp().c_str(), m_Dashboard.GetPort()));
+    std::thread thd([=]{
+        std::string ret = m_Dashboard.ClearError();
+        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_Dashboard.GetIp().c_str(),
+                                   m_Dashboard.GetPort(), ret.c_str()));
+    });
+    thd.detach();
+}
+
+void Demo::ResetRobot()
+{
+    PrintLog(QString::asprintf("send to %s:%hu: ResetRobot()", m_Dashboard.GetIp().c_str(), m_Dashboard.GetPort()));
+    std::thread thd([=]{
+        std::string ret = m_Dashboard.ResetRobot();
+        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_Dashboard.GetIp().c_str(),
+                                   m_Dashboard.GetPort(), ret.c_str()));
+    });
+    thd.detach();
+}
+
+void Demo::overstressAutoStartDrag(Mat1x6 SensorValue, int force_threshold)
+{
+    for (int i = 0; i < 6; i++) {
+        SensorValue(i) = SensorValue(i) - init_sensor(i);
+        if (SensorValue(i) > force_threshold) {
+            //进入拖拽(在报错状态下，不可进入拖拽)
+            StartDrag();
+            sleep(3);
+            break;
+        }
+    }
+}
+
 void Demo::JointMovJ()
 {
     CJointPoint pt;
@@ -352,13 +402,29 @@ void Demo::MovJ()
 //    pt.ry = 1.513;
 //    pt.rz = -45.001;
 
-    //点二（离插孔很近）
-    pt.x = 614.742;
-    pt.y = 67.29;
-    pt.z = 423.727;
-    pt.rx = -89.419;
-    pt.ry = 1.547;
-    pt.rz = -62.841;
+//    //点二（离插孔很近）
+//    pt.x = 614.742;
+//    pt.y = 67.29;
+//    pt.z = 423.727;
+//    pt.rx = -89.419;
+//    pt.ry = 1.547;
+//    pt.rz = -62.841;
+
+    //新点二（离插孔很近）
+    pt.x = 614.993;
+    pt.y = 50.91;
+    pt.z = 423.312;
+    pt.rx = -88.348;
+    pt.ry = 1.457;
+    pt.rz = -63.708;
+
+//    //测试MovL()的起始点
+//    pt.x = 561.0000;
+//    pt.y = 29.0000;
+//    pt.z = 566.0000;
+//    pt.rx = -92.0000;
+//    pt.ry = 2.0000;
+//    pt.rz = -64.0000;
 
 //    PrintLog(QString::asprintf("send to %s:%hu: MovJ(%s)", m_DobotMove.GetIp().c_str(),
 //                               m_DobotMove.GetPort(),pt.ToString().c_str()));
@@ -373,12 +439,45 @@ void Demo::MovJ()
 void Demo::MovL()
 {
     CDescartesPoint pt;
-    pt.x = -287.0000;
-    pt.y = 652.0000;
-    pt.z = 890.0000;
-    pt.rx = -88.0000;
-    pt.ry = -40.0000;
-    pt.rz = -53.0000;
+//    pt.x = -287.0000;
+//    pt.y = 652.0000;
+//    pt.z = 890.0000;
+//    pt.rx = -88.0000;
+//    pt.ry = -40.0000;
+//    pt.rz = -53.0000;
+
+    //测试MovL()的终点
+//    pt.x = 561.0000;
+//    pt.y = 40.0000;
+//    pt.z = 566.0000;
+//    pt.rx = -92.0000;
+//    pt.ry = 2.0000;
+//    pt.rz = -64.0000;
+
+    //点二（离插孔很近）
+//    pt.x = 614.742;
+//    pt.y = 67.29;
+//    pt.z = 423.727;
+//    pt.rx = -89.419;
+//    pt.ry = 1.547;
+//    pt.rz = -62.841;
+
+    //新点二（离插孔很近）
+    pt.x = 614.993;
+    pt.y = 50.91;
+    pt.z = 423.312;
+    pt.rx = -88.348;
+    pt.ry = 1.457;
+    pt.rz = -63.708;
+
+    //点三（进入插孔）
+//    pt.x = 648.96;
+//    pt.y = 68.986;
+//    pt.z = 418.781;
+//    pt.rx = -87.639;
+//    pt.ry = 1.382;
+//    pt.rz = -62.587;
+
     PrintLog(QString::asprintf("send to %s:%hu: MovL(%s)", m_DobotMove.GetIp().c_str(),
                                m_DobotMove.GetPort(),pt.ToString().c_str()));
     std::thread thd([=]{

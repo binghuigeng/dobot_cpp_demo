@@ -72,13 +72,16 @@ void Control::Transport2ServoP(Mat1x6 real_value) {
 //    expP(0) = expPose(2,2); // x = z
     //    expP(1) = expPose(2,0); // y = x
     //    expP(2) = -1 * expPose(2,1); // z = -y
-    expP(0) = expPose(2,0); // x = z
-    expP(1) = expPose(2,1); // y = x
-    expP(2) = expPose(2,2); // z = -y
+//    expP(0) = expPose(2,0); // x = x
+//    expP(1) = expPose(2,1); // y = y
+//    expP(2) = expPose(2,2); // z = z
+    expP(0) = 18/12*expPose(2,2) + 0*expPose(2,1) + 0*expPose(2,0); // x = x
+    expP(1) = 6/12*expPose(2,2); // y = y
+    expP(2) = 10/12*expPose(2,2); // z = z
     expP(3) = 1;
     // deltaP = ToolMatonBase * P.transpose() - P.transpose();
     // if(deltaP)
-    expP = ToolMatonBase * expP.transpose();
+//    expP = ToolMatonBase * expP.transpose();
 
 //    std::cout << ToolMatonBase.format(HeavyFmt) << sep;
 //    std::cout << expP.format(HeavyFmt) << sep;

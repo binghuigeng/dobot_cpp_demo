@@ -59,6 +59,15 @@ class Demo : public QThread {
     //退出拖拽
     void StopDrag();
 
+    //复位，用于清除错误
+    void ClearError();
+
+    //机器人停止
+    void ResetRobot();
+
+    // 受力过大时，进入拖动示教状态
+    void overstressAutoStartDrag(Mat1x6 SensorValue, int force_threshold);
+
     //点到点运动，目标点位为关节点位
     void JointMovJ();
 

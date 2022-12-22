@@ -257,7 +257,7 @@ int Rs232Linux::readport(int fd,int maxwaittime)
 //	}
 	return -1;
 }
-int	Rs232Linux::openport(char *Dev)   
+int	Rs232Linux::openport(char *Dev)
 {
     fd = open( Dev, O_RDONLY|O_NOCTTY );
 	if (-1 == fd) 
