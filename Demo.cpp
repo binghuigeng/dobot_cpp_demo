@@ -79,18 +79,18 @@ void Demo::run()
         ConfirmSpeed();
         msleep(500);
 
-//        //点到点运动，目标点位为笛卡尔点位
-//        //机器人末端移动到离插孔很近的位置
-//        MovJ();
-//        sleep(3);
-//        std::cout << "MovJ end" << std::endl;
-
-        // 直线运动，目标点位为笛卡尔点位
-        MovL();
+        //点到点运动，目标点位为笛卡尔点位
+        //机器人末端移动到离插孔很近的位置
+        MovJ();
         sleep(5);
-        std::cout << "MovL end" << std::endl;
+        std::cout << "MovJ end" << std::endl;
 
-        //进入拖拽(在报错状态下，不可进入拖拽)
+//        // 直线运动，目标点位为笛卡尔点位
+//        MovL();
+//        sleep(5);
+//        std::cout << "MovL end" << std::endl;
+
+//        //进入拖拽(在报错状态下，不可进入拖拽)
 //        StartDrag();
 //        sleep(3);
 
@@ -183,10 +183,10 @@ void Demo::run()
         //置标志位为假，准备退出循环
         bStop = false;
 //        StopDrag();
-        //下使能机器人
-        Enable(false);
-        //断开连接
-        Disconnect();
+//        //下使能机器人
+////        Enable(false);
+//        //断开连接
+//        Disconnect();
     }
 }
 
@@ -426,6 +426,14 @@ void Demo::MovJ()
 //    pt.ry = 2.0000;
 //    pt.rz = -64.0000;
 
+    //新点四:基于孔内两点算出的插孔点
+    pt.x = 648.42+(646.887-648.42)*20;
+    pt.y = 71.284+(70.485-71.284)*20;
+    pt.z = 417.711+(417.785-417.711)*20;
+    pt.rx = -87.163;
+    pt.ry = 1.389;
+    pt.rz = -63.194;
+
 //    PrintLog(QString::asprintf("send to %s:%hu: MovJ(%s)", m_DobotMove.GetIp().c_str(),
 //                               m_DobotMove.GetPort(),pt.ToString().c_str()));
     std::thread thd([=]{
@@ -477,6 +485,14 @@ void Demo::MovL()
 //    pt.rx = -87.639;
 //    pt.ry = 1.382;
 //    pt.rz = -62.587;
+
+    //新点四:基于孔内两点算出的插孔点
+    pt.x = 648.42+(646.887-648.42)*30;
+    pt.y = 71.284+(70.485-71.284)*30;
+    pt.z = 417.711+(417.785-417.711)*30;
+    pt.rx = -87.163;
+    pt.ry = 1.389;
+    pt.rz = -63.194;
 
     PrintLog(QString::asprintf("send to %s:%hu: MovL(%s)", m_DobotMove.GetIp().c_str(),
                                m_DobotMove.GetPort(),pt.ToString().c_str()));

@@ -1,8 +1,12 @@
 #include "Control.h"
 #include <iostream>
+#include <math.h>
+
+#define PI 3.1415926
 
 Control::Control() {
-    eps = 4e-3;
+//    eps = 4e-3;
+    eps = 1;
     x1 << 0, 0, 0;
     Kxyz << 0.5, 45.0, 10.0,  // Kp Kd Ke
         0.5, 45, 10.0,
@@ -14,7 +18,8 @@ Control::Control() {
             0, 0, 0;
     kavs_limit[0] = 5000;
     kavs_limit[1] = 1000;
-    kavs_limit[2] = 0.08;
+//    kavs_limit[2] = 0.08;
+    kavs_limit[2] = 0.04;
 }
 
 // ToolVectorActual to Mat4x4 (欧拉角转旋转矩阵 x/pitch, y/yaw, z/roll)
@@ -75,9 +80,26 @@ void Control::Transport2ServoP(Mat1x6 real_value) {
 //    expP(0) = expPose(2,0); // x = x
 //    expP(1) = expPose(2,1); // y = y
 //    expP(2) = expPose(2,2); // z = z
-    expP(0) = 18/12*expPose(2,2) + 0*expPose(2,1) + 0*expPose(2,0); // x = x
-    expP(1) = 6/12*expPose(2,2); // y = y
-    expP(2) = 10/12*expPose(2,2); // z = z
+//    expP(0) = 18/12*expPose(2,2) + 0*expPose(2,1) + 0*expPose(2,0); // x = x
+//    expP(1) = 6/12*expPose(2,2); // y = y
+//    expP(2) = 10/12*expPose(2,2); // z = z
+    double x_de = 646.887-648.42;
+    double y_de = 70.485-71.284;
+    double z_de = 417.785-417.711;
+
+
+    double a,b,c;  //获z轴移动向量，并单位化
+    a = x_de / sqrt(pow(x_de, 2) + pow(y_de, 2) + pow(z_de, 2));
+    b = y_de / sqrt(pow(x_de, 2) + pow(y_de, 2) + pow(z_de, 2));
+    c = z_de / sqrt(pow(x_de, 2) + pow(y_de, 2) + pow(z_de, 2));
+
+
+
+    //第一列为插孔末端z轴移动向量在base坐标系(a,b,c)，第二列为插孔末端Y轴移动向量在base坐标系(0,0,-1)，
+    //第三列为插孔末端x轴移动向量(c,b,-a)
+    expP(0) = a*expPose(2,2) + 0*expPose(2,1) + c*expPose(2,0); // x = x
+    expP(1) = b*expPose(2,2)+ 0*expPose(2,1) + b*expPose(2,0); // y = y
+    expP(2) = c*expPose(2,2)- 1*expPose(2,1) - a*expPose(2,0); // z = z
     expP(3) = 1;
     // deltaP = ToolMatonBase * P.transpose() - P.transpose();
     // if(deltaP)
