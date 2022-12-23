@@ -5,8 +5,8 @@
 #define PI 3.1415926
 
 Control::Control() {
-//    eps = 4e-3;
-    eps = 1;
+    eps = 4e-3;
+  //  eps = 1;
     x1 << 0, 0, 0;
     Kxyz << 0.5, 45.0, 10.0,  // Kp Kd Ke
         0.5, 45, 10.0,
@@ -57,7 +57,7 @@ void Control::impC(Mat1x3 Fd, Mat1x3 Ft)  // for Fd 期望力Fx Fy Fz, Ft是测�
     }
     v = integral(a);
     s = integral(v);
-    ds = v;
+    ds = s;
     expPose << a, v, ds;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -83,10 +83,9 @@ void Control::Transport2ServoP(Mat1x6 real_value) {
 //    expP(0) = 18/12*expPose(2,2) + 0*expPose(2,1) + 0*expPose(2,0); // x = x
 //    expP(1) = 6/12*expPose(2,2); // y = y
 //    expP(2) = 10/12*expPose(2,2); // z = z
-    double x_de = 646.887-648.42;
-    double y_de = 70.485-71.284;
-    double z_de = 417.785-417.711;
-
+    double x_de = 649.639-627.08;
+    double y_de = 68.489-56.17;
+    double z_de = 424.019-424.059;
 
     double a,b,c;  //获z轴移动向量，并单位化
     a = x_de / sqrt(pow(x_de, 2) + pow(y_de, 2) + pow(z_de, 2));
@@ -97,9 +96,16 @@ void Control::Transport2ServoP(Mat1x6 real_value) {
 
     //第一列为插孔末端z轴移动向量在base坐标系(a,b,c)，第二列为插孔末端Y轴移动向量在base坐标系(0,0,-1)，
     //第三列为插孔末端x轴移动向量(c,b,-a)
-    expP(0) = a*expPose(2,2) + 0*expPose(2,1) + c*expPose(2,0); // x = x
-    expP(1) = b*expPose(2,2)+ 0*expPose(2,1) + b*expPose(2,0); // y = y
-    expP(2) = c*expPose(2,2)- 1*expPose(2,1) - a*expPose(2,0); // z = z
+
+     std::cout << "x轴受力控xy影响 : " <<  0*expPose(2,1) + c*expPose(2,0)<< "\n";
+     std::cout << "y轴受力控xy影响 : " <<  0*expPose(2,1) + b*expPose(2,0)<< "\n";
+     std::cout << "z轴受力控xy影响 : " <<  -1*expPose(2,1) - a*expPose(2,0)<< "\n";
+//     expP(0) = a*expPose(2,2) + 0*expPose(2,1) + c*expPose(2,0); // x = x
+//     expP(1) = b*expPose(2,2)+ 0*expPose(2,1) + b*expPose(2,0); // y = y
+//     expP(2) = c*expPose(2,2)- 1*expPose(2,1) - a*expPose(2,0); // z = z
+    expP(0) = a*expPose(2,2); // x = x
+    expP(1) = b*expPose(2,2); // y = y
+    expP(2) = c*expPose(2,2); // z = z
     expP(3) = 1;
     // deltaP = ToolMatonBase * P.transpose() - P.transpose();
     // if(deltaP)
@@ -107,9 +113,10 @@ void Control::Transport2ServoP(Mat1x6 real_value) {
 
 //    std::cout << ToolMatonBase.format(HeavyFmt) << sep;
 //    std::cout << expP.format(HeavyFmt) << sep;
-    ServoP.block(0, 0, 1, 3) = expP.block(0, 0, 1, 3); // todo 真实相加
+//    ServoP.block(0, 0, 1, 3) = expP.block(0, 0, 1, 3); // todo 真实相加
+      ServoP.block(0, 0, 1, 3) += expP.block(0, 0, 1, 3); // todo 真实相加
 //    ServoP.block(0, 0, 1, 3) += real_value.block(0, 0, 1, 3); // 真实值相加
-    ServoP.block(0, 3, 1, 3) = filtered_tool_vector_actual.block(0, 3, 1, 3);
+      ServoP.block(0, 3, 1, 3) = preRobotValue.block(0, 3, 1, 3);
 }
 void Control::FilterSensor(Mat1x6 SensorValue, int filter_value) {
     for (int i = 0; i < 6; i++) {
@@ -119,6 +126,7 @@ void Control::FilterSensor(Mat1x6 SensorValue, int filter_value) {
         }
     }
     preSensorValue = SensorValue;
+    std::cout << "serial data : " << preSensorValue << "\n";
 }
 
 void Control::FilterRobot(Mat1x6 RobotValue, int filter_value) {
