@@ -673,7 +673,7 @@ void Demo::ServoP()
 //    PrintLog(QString::asprintf("send to %s:%hu: ServoP(%s)", m_DobotMove.GetIp().c_str(),
 //                               m_DobotMove.GetPort(),pt.ToString().c_str()));
     std::thread thd([=]{
-//        std::string ret = m_DobotMove.ServoP(pt);
+        std::string ret = m_DobotMove.ServoP(pt);
 //        PrintLog(QString::asprintf("Receive From %s:%hu: %s", m_DobotMove.GetIp().c_str(),
 //                                   m_DobotMove.GetPort(), ret.c_str()));
     });
